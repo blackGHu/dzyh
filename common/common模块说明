@@ -1,0 +1,6 @@
+Common模块：
+存放：
+    临时封装实体类(比如User和Order类————> UserOrder———包含属性：User类,Order类)
+    自定义注解、异常
+    工具类（比如通用返回结果Result.java    ....）
+    枚举类（比如通用返回枚举ResultEnum.java  ....）
