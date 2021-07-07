@@ -6,6 +6,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>common</module>
+        <module>goodsManagement</module>
     </modules>
 
     <groupId>com.njupt</groupId>
@@ -25,6 +26,8 @@
         <druid_version>1.1.22</druid_version>
         <mybatisplus_version>3.3.2</mybatisplus_version>
         <spring_version>2.4.4</spring_version>
+        <log4j_version>1.7.25</log4j_version>
+        <mysql_version>8.0.21</mysql_version>
     </properties>
 
     <dependencyManagement>
@@ -33,17 +36,19 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.4.4</version>
+                <version>${spring_version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter</artifactId>
+                <version>${spring_version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring_version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -54,10 +59,11 @@
 
 
             <!--数据库-->
-            <!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter -->
+            <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql_version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
@@ -93,7 +99,9 @@
 
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${log4j_version}</version>
+                <scope>test</scope>
             </dependency>
 
 
