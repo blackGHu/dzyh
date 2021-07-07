@@ -1,4 +1,4 @@
-package com.njupt.dzyh.validator;
+package com.njupt.dzyh.utils;
 
 import com.njupt.dzyh.utils.IsMobile;
 import com.njupt.dzyh.utils.validatorUtil;
