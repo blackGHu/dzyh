@@ -31,13 +31,13 @@ public class BaseException extends Exception {
      * @param resultDesc 结果描述
      */
     public BaseException(final String resultCode, final String resultDesc) {
-        result = new CommonResult(resultCode, resultDesc);
+        result = new CommonResult(resultCode, resultDesc,null);
     }
     /**
      * 基本异常.
      * @param resultCode 结果代码
      */
     public BaseException(final String resultCode) {
-        result = new CommonResult(resultCode, null);
+        result = new CommonResult(resultCode, null,null);
     }
 }

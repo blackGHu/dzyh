@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.njupt.dzyh.dao.GoodsDao;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.service.GoodsService;
+import com.njupt.dzyh.utils.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +37,9 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     public int insert(Goods goods) {
-        goods.setGoodsId(2)
-                .setGoodsName("asdsada")
+        /*
+        newGoods.setGoodsId(goods.getGoodsId())
+                .setGoodsName(goods.getGoodsName() +  CommonUtil.getRandomCode(100))
                 .setGoodsSize("222")
                 .setGoodsModel("111")
                 .setGoodsAddress("asd")
@@ -47,7 +49,20 @@ public class GoodsServiceImpl implements GoodsService {
                 .setGoodsUseStatus(1)
                 .setPurposeId(1)
                 .setUserId("1");
-        return goodsDao.insert(goods);
+         */
+        Goods newGoods = new Goods();
+        newGoods.setGoodsId(goods.getGoodsId())
+                .setGoodsName(goods.getGoodsName() +  CommonUtil.getRandomCode(100))
+                .setGoodsSize(goods.getGoodsSize())
+                .setGoodsModel(goods.getGoodsModel())
+                .setGoodsAddress(goods.getGoodsAddress())
+                .setGoodsApprovalStatus(goods.getGoodsApprovalStatus())
+                .setGoodsPrice(goods.getGoodsPrice())
+                .setGoodsNumbers(goods.getGoodsNumbers())
+                .setGoodsUseStatus(goods.getGoodsUseStatus())
+                .setPurposeId(goods.getPurposeId())
+                .setUserId(goods.getUserId());
+        return goodsDao.insert(newGoods);
     }
 
     public int deletById(int id) {
