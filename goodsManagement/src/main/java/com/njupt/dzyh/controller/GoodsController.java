@@ -1,7 +1,10 @@
 package com.njupt.dzyh.controller;
 
 import com.njupt.dzyh.domain.Goods;
+import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.GoodsService;
+import com.njupt.dzyh.utils.CommonResult;
+import com.njupt.dzyh.utils.CommonUtil;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,9 +37,13 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/selectAll")
-    public List<Goods> selectAll(){
+    public CommonResult selectAll(){
         System.out.println("hello--- ");
-        return goodsService.selectAll();
+        List<Goods> goodsList =  goodsService.selectAll();
+        if(0 == goodsList.size()){
+            return CommonResult.error(CommonResultEm.ERROR);
+        }
+        return CommonResult.success(goodsList);
     }
 
     /**
@@ -46,14 +53,33 @@ public class GoodsController {
      */
 
     @RequestMapping("/selectById/{goodsId}")
-    public Goods selectById(@PathVariable("goodsId") int goodsId){
-        return goodsService.selectById(goodsId);
+    public CommonResult selectById(@PathVariable("goodsId") int goodsId){
+        Goods good = goodsService.selectById(goodsId);
+        if(CommonUtil.isNull(good)){
+            return CommonResult.error(CommonResultEm.ERROR);
+        }
+        return CommonResult.success(good);
     }
 
 
+    /**
+     * 物品信息的录入
+     * @param goods
+     * @return
+     */
     @RequestMapping("/insert")
-    public int insert(Goods goods){
-        return goodsService.insert(goods);
+    public CommonResult insert(Goods goods){
+        if(CommonUtil.isNull(goods)){
+            return CommonResult.error();
+        }else if(CommonUtil.isNotNull(goodsService.selectById(goods.getGoodsId()))){
+            return CommonResult.error(CommonResultEm.ALREADY_EXIST);
+        }else {
+            int rec = goodsService.insert(goods);
+            if(rec == 1)
+                return CommonResult.success();
+            else
+                return CommonResult.error();
+        }
     }
 
     @RequestMapping("/deleteById")

@@ -34,30 +34,30 @@ public class CommonResult {
      */
     private String resultMessage;
 
-//    private Object obj;
+    private Object obj;
 
     public static CommonResult success(){
-        return new CommonResult(CommonResultEm.SUCCESS.getEcode(),CommonResultEm.SUCCESS.getEmsg());
+        return new CommonResult(CommonResultEm.SUCCESS.getEcode(),CommonResultEm.SUCCESS.getEmsg(),null);
 
     }
-//    public static CommonResult success(Object obj){
-//        return new CommonResult(CommonResultEm.SUCCESS.getEcode(),CommonResultEm.SUCCESS.getEmsg(),obj);
-//
-//    }
+    public static CommonResult success(Object obj){
+        return new CommonResult(CommonResultEm.SUCCESS.getEcode(),CommonResultEm.SUCCESS.getEmsg(),obj);
 
-//    public static ResponceBean error(){
-//        return new ResponceBean(RespBeanEm.ERROR.getEcode(),RespBeanEm.ERROR.getEmsg(),null);
-//
-//    }
+    }
+
+    public static CommonResult error(){
+        return new CommonResult(CommonResultEm.ERROR.getEcode(),CommonResultEm.ERROR.getEmsg(),null);
+
+    }
 
     public static CommonResult error(CommonResultEm respBeanEm){
-        return new CommonResult(respBeanEm.getEcode(),respBeanEm.getEmsg());
+        return new CommonResult(respBeanEm.getEcode(),respBeanEm.getEmsg(),null);
 
     }
 
-//    public static CommonResult error(CommonResultEm respBeanEm,Object obj){
-//        return new CommonResult(respBeanEm.getEcode(),respBeanEm.getEmsg(),obj);
-//
-//    }
+    public static CommonResult error(CommonResultEm respBeanEm,Object obj){
+        return new CommonResult(respBeanEm.getEcode(),respBeanEm.getEmsg(),obj);
+
+    }
 
 }

@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
         sb.append(fieldError.getRejectedValue()).append("与入参字段:")
         .append(fieldError.getField()).append("的类型不匹配,请处理!");
         CommonResult result = new CommonResult(ICommonResultCode
-              .SystemResultCode.PARAM_BIND_ERROR, sb.toString());
+              .SystemResultCode.PARAM_BIND_ERROR, sb.toString(),null);
         response.setResult(result);
         LOGGER.error("handleBindException:{}",response);
         return response;
@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
         }
 
         CommonResult result = new CommonResult(ICommonResultCode
-                .SystemResultCode.PARAM_BIND_ERROR, sb.toString());
+                .SystemResultCode.PARAM_BIND_ERROR, sb.toString(),null);
         response.setResult(result);
         LOGGER.error("handleHttpMessageNotReadableException:{}",response);
         return response;
@@ -160,11 +160,11 @@ public class GlobalExceptionHandler {
                 }
             }
             result =  new CommonResult(ICommonResultCode
-                    .SystemResultCode.PARAM_BIND_ERROR, bf.toString());
+                    .SystemResultCode.PARAM_BIND_ERROR, bf.toString(),null);
         } else {
             //未识别的错误
             result = new CommonResult(ICommonResultCode
-                    .SystemResultCode.UNKNOW_ERROR, "其他未知错误！");
+                    .SystemResultCode.UNKNOW_ERROR, "其他未知错误！",null);
         }
         response.setResult(result);
 

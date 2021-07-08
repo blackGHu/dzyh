@@ -7,10 +7,10 @@ import lombok.ToString;
 @AllArgsConstructor
 public enum CommonResultEm {
     // 通用enum：
-    SUCCESS      ("200","成功"),
-    ERROR        ("400","失败"),
-    BIND_ERROR   ("111103","参数校验异常");
-
+    SUCCESS         ("200","成功"),
+    ERROR           ("400","失败"),
+    BIND_ERROR      ("111101","参数校验异常"),
+    ALREADY_EXIST   ("111102","已存在");
     // 用户登录enum：900xx
     // 管理员...：800xx
     // 订单：700xx
