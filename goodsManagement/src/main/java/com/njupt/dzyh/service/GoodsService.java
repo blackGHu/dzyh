@@ -2,22 +2,27 @@ package com.njupt.dzyh.service;
 
 
 import com.njupt.dzyh.domain.Goods;
+import com.njupt.dzyh.utils.CommonResult;
 
 import java.util.List;
 import java.util.Map;
 
 public interface GoodsService {
-    List<Goods> selectAll();
+    CommonResult selectAll();
 
-    Goods selectById(int id);
+    CommonResult selectById(int goodsId);
 
-    int insert(Goods user);
+    CommonResult insert(Goods user);
 
-    int deletById(int id);
+    CommonResult insertBatch(List<Goods> goodsList);
 
-    int update(Goods goods);
+    CommonResult deletById(int goodsId);
+
+    CommonResult update(Goods goods);
+
+    CommonResult updateBatch(List<Goods> goodsList);
 
     List<Goods> selectByConditions(Map<String, Object> map);
 
-    List<Goods> selectByPage();
+    CommonResult selectByPage(int current,int size);
 }

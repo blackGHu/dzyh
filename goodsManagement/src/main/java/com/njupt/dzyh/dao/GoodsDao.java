@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.njupt.dzyh.domain.Goods;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Collection;
+import java.util.List;
+
 
 /**
  * 一句话功能描述.
@@ -16,4 +19,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface GoodsDao extends BaseMapper<Goods> {
+
+    Integer insertBatchSomeColumn(List<Goods> goodsList);
+
+    Integer updateBatchSomeColumn(List<Goods> goodsList);
 }
