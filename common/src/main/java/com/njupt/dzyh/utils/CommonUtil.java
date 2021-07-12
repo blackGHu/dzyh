@@ -7,11 +7,17 @@
 package com.njupt.dzyh.utils;
 
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.njupt.dzyh.utils.concasts.CommonConst;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Random;
@@ -92,4 +98,165 @@ public final class CommonUtil {
 		code = bufferStr.toString();
 		return code;
 	}
+
+
+	/**
+	 * Excel to  json
+	 * @param url
+	 *
+	 * xsc
+	 */
+	public static JSONObject excelToJson(String url){
+		try {
+			FileInputStream inp = new FileInputStream(new File(url));
+			Workbook workbook = WorkbookFactory.create(inp);
+			//获取sheet数
+			int sheetNum = workbook.getNumberOfSheets();
+			JSONObject jsonObject = new JSONObject();
+			for (int s = 0; s < sheetNum; s++) {
+				// Get the Sheet of s.
+				Sheet sheet = workbook.getSheetAt(s);
+				//获取最大行数
+				int rownum = sheet.getPhysicalNumberOfRows();
+				if (rownum <= 1) {
+					continue;
+				}
+				//获取第一行
+				Row row1 = sheet.getRow(0);
+				//获取最大列数
+				int colnum = row1.getPhysicalNumberOfCells();
+				JSONArray jsonArray = new JSONArray();
+				for (int i = 1; i < rownum; i++) {
+					Row row = sheet.getRow(i);
+					if (row != null) {
+//                    List<Object> list = new ArrayList<>();
+						JSONObject rowObj = new JSONObject();
+						//循环列
+						for (int j = 0; j < colnum; j++) {
+							Cell cellData = row.getCell(j);
+							if (cellData != null) {
+								//判断cell类型
+								switch (cellData.getCellType()) {
+									case Cell.CELL_TYPE_NUMERIC: {
+										rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getNumericCellValue());
+										break;
+									}
+									case Cell.CELL_TYPE_FORMULA: {
+										//判断cell是否为日期格式
+										if (DateUtil.isCellDateFormatted(cellData)) {
+											//转换为日期格式YYYY-mm-dd
+											rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getDateCellValue());
+										} else {
+											//数字
+											rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getNumericCellValue());
+										}
+										break;
+									}
+									case Cell.CELL_TYPE_STRING: {
+										rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getStringCellValue());
+										break;
+									}
+									default:
+										rowObj.put(row1.getCell(j).getStringCellValue(), "");
+								}
+							} else {
+								rowObj.put(row1.getCell(j).getStringCellValue(), "");
+
+							}
+						}
+						jsonArray.add(rowObj);
+					}
+				}
+//				.info(jsonArray.toJSONString());
+				System.out.println("jsonArray----\t" + jsonArray.toJSONString());
+				jsonObject.put(sheet.getSheetName(), jsonArray);
+			}
+			System.out.println("jsonObject----\t" + jsonObject.toJSONString());
+//			logger.info(jsonObject.toJSONString());
+			return jsonObject;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * @param file
+	 * @return
+	 */
+	public static JSONObject excelToJson(MultipartFile file){
+		try {
+//			FileInputStream inp = new FileInputStream(file);
+			Workbook workbook = WorkbookFactory.create(file.getInputStream());
+			//获取sheet数
+			int sheetNum = workbook.getNumberOfSheets();
+			JSONObject jsonObject = new JSONObject();
+			for (int s = 0; s < sheetNum; s++) {
+				// Get the Sheet of s.
+				Sheet sheet = workbook.getSheetAt(s);
+				//获取最大行数
+				int rownum = sheet.getPhysicalNumberOfRows();
+				if (rownum <= 1) {
+					continue;
+				}
+				//获取第一行
+				Row row1 = sheet.getRow(0);
+				//获取最大列数
+				int colnum = row1.getPhysicalNumberOfCells();
+				JSONArray jsonArray = new JSONArray();
+				for (int i = 1; i < rownum; i++) {
+					Row row = sheet.getRow(i);
+					if (row != null) {
+//                    List<Object> list = new ArrayList<>();
+						JSONObject rowObj = new JSONObject();
+						//循环列
+						for (int j = 0; j < colnum; j++) {
+							Cell cellData = row.getCell(j);
+							if (cellData != null) {
+								//判断cell类型
+								switch (cellData.getCellType()) {
+									case Cell.CELL_TYPE_NUMERIC: {
+										rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getNumericCellValue());
+										break;
+									}
+									case Cell.CELL_TYPE_FORMULA: {
+										//判断cell是否为日期格式
+										if (DateUtil.isCellDateFormatted(cellData)) {
+											//转换为日期格式YYYY-mm-dd
+											rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getDateCellValue());
+										} else {
+											//数字
+											rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getNumericCellValue());
+										}
+										break;
+									}
+									case Cell.CELL_TYPE_STRING: {
+										rowObj.put(row1.getCell(j).getStringCellValue(), cellData.getStringCellValue());
+										break;
+									}
+									default:
+										rowObj.put(row1.getCell(j).getStringCellValue(), "");
+								}
+							} else {
+								rowObj.put(row1.getCell(j).getStringCellValue(), "");
+
+							}
+						}
+						jsonArray.add(rowObj);
+					}
+				}
+//				.info(jsonArray.toJSONString());
+				System.out.println(jsonArray.toJSONString());
+				jsonObject.put(sheet.getSheetName(), jsonArray);
+			}
+			System.out.println(jsonObject.toJSONString());
+//			logger.info(jsonObject.toJSONString());
+			return jsonObject;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }
