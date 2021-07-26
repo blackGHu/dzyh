@@ -2,6 +2,7 @@ package com.njupt.dzyh.service;
 
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.Information;
+import com.njupt.dzyh.utils.CommonResult;
 
 import java.util.List;
 
@@ -16,7 +17,8 @@ import java.util.List;
  */
 public interface InformationService {
 
-    int insert(Goods user);
-    int subtract(Goods goods);
-    List<Information> selectByCondition(String name, String size, String model);
+    CommonResult add(Goods goods);
+    CommonResult subtract(Goods goods);
+    CommonResult selectByCondition(Information con);
+    CommonResult selectAllInfoByPage(int current,int size);
 }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.GoodsService;
+import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
 import org.apache.ibatis.annotations.Param;
@@ -33,6 +34,8 @@ public class GoodsController {
 
     @Autowired
     private GoodsService goodsService;
+    @Autowired
+    private InformationService informationService;
 
 //     ---------查询操作--------------
     /**
@@ -77,6 +80,7 @@ public class GoodsController {
      */
     @RequestMapping("/insert")
     public CommonResult insert(@RequestBody Goods goods){
+        informationService.add(goods);
         return goodsService.insert(goods);
     }
 

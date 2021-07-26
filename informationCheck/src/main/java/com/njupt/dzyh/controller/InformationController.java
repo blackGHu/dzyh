@@ -5,6 +5,7 @@ import com.njupt.dzyh.dao.InformationDao;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.Information;
 import com.njupt.dzyh.enums.CommonResultEm;
+
 import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.utils.CommonResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +37,62 @@ public class InformationController {
 
 
     /**
+     * test
+     * @return
+     */
+    @RequestMapping("/testAdd")
+    public CommonResult testAdd(@RequestParam("model") String model,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size){
+        Goods goods = new Goods();
+        goods.setGoodsName(name)
+                .setGoodsSize(size)
+                .setGoodsModel(model)
+                .setGoodsNumbers(number);
+        return informationService.add(goods);
+    }
+
+    @RequestMapping("/testSub")
+    public CommonResult testSub(@RequestParam("model") String model,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size){
+        Goods goods = new Goods();
+        String msg;
+        goods.setGoodsName(name)
+                .setGoodsSize(size)
+                .setGoodsModel(model)
+                .setGoodsNumbers(number);
+
+        return informationService.subtract(goods);
+    }
+
+
+
+
+
+
+    /**
      * 查询库存信息
      * @return
      */
     @RequestMapping("/selectByCondition")
     public CommonResult selectByCondition(@RequestParam("name") String name, @RequestParam("size") String size, @RequestParam("model") String model){
-        List<Information> informationList = informationService.selectByCondition(name,size,model);
-        if(informationList.size()==0) return CommonResult.error(CommonResultEm.ERROR);
-
-        return CommonResult.success(informationList);
+        Information con = new Information();
+        con.setRepertoryName(name);
+        con.setRepertoryModel(model);
+        con.setRepertorySize(size);
+        return informationService.selectByCondition(con);
     }
+
+    /**
+     * 分页查询库存信息
+     * @return
+     */
+    @RequestMapping("/selectByPage/{current}/{size}")
+    public CommonResult selectByPage(@PathVariable("current") int current,@PathVariable("size") int pageSize) {
+
+        return informationService.selectAllInfoByPage(current, pageSize);
+    }
+
+
+
+
 
 
 }

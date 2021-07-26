@@ -25,7 +25,7 @@ import java.io.Serializable;
 @TableName("tb_repertory")
 public class Information implements Serializable {
 
-    @TableId("repertory_id")
+    @TableId(value = "repertory_id",type = IdType.AUTO)
     private Integer repertoryId;
 
     private String repertoryName;
@@ -34,7 +34,7 @@ public class Information implements Serializable {
 
     private String repertoryModel;
 
-    private String repertoryNumbers;
+    private Integer repertoryNumbers;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Version
