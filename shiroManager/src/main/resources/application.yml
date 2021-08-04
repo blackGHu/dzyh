@@ -10,5 +10,6 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
-
-
+dbNames: db_dzyh
+dbFilePath: C:\\Users\\Administrator\\Desktop\\file\\db\\
+hostIp: 127.0.0.1

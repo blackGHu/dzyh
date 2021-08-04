@@ -8,6 +8,7 @@
         <module>common</module>
         <module>goodsManagement</module>
         <module>informationCheck</module>
+        <module>shiroManager</module>
     </modules>
 
     <groupId>com.njupt</groupId>

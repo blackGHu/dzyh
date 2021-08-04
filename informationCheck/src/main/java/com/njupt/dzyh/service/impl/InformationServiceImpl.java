@@ -29,15 +29,14 @@ public class InformationServiceImpl implements InformationService {
 
         QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("repertory_model",model);
-        Information temp = informationDao.selectOne(queryWrapper);
-        //System.out.println(goods);
-        if(temp!=null){
+        Information temp = new Information();
+        if(informationDao.selectOne(queryWrapper)!=null){
+            temp = informationDao.selectOne(queryWrapper);
             temp.setRepertoryNumbers(temp.getRepertoryNumbers()+number);
             informationDao.update(temp,queryWrapper);
             return CommonResult.success(model+"入库成功");
         }
         else{
-            temp = new Information();
             temp.setRepertoryName(goods.getGoodsName());
             temp.setRepertorySize(goods.getGoodsSize());
             temp.setRepertoryModel(goods.getGoodsModel());
