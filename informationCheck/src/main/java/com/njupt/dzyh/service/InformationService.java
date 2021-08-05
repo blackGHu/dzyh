@@ -19,6 +19,6 @@ public interface InformationService {
 
     CommonResult add(Goods goods);
     CommonResult subtract(Goods goods);
-    CommonResult selectByCondition(Information con);
+    CommonResult selectByCondition(Information con,int current,int size);
     CommonResult selectAllInfoByPage(int current,int size);
 }

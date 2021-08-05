@@ -71,12 +71,30 @@ CREATE TABLE `tb_repertory` (
   `deleted` tinyint NOT NULL COMMENT 'Mybatis plus 软删除控制\r\n0——未删除\r\n1——已删除',
   PRIMARY KEY (`repertory_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
--- ---------------------------tb_repertory
+-- ---------------------------
+-- Table structure for re_understock
+-- ----------------------------
+DROP TABLE IF EXISTS `re_understock`;
+CREATE TABLE `re_understock` (
+  `us_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '缺货记录ID（主键）',
+  `us_name` varchar(20) NOT NULL COMMENT '物品名称',
+  `us_size` varchar(20) NOT NULL COMMENT '规格',
+  `us_model` varchar(20) NOT NULL COMMENT '型号',
+  `us_numbers` int(11) NOT NULL COMMENT '物品申请数量',
+  `user_Id` varchar(20) NOT NULL COMMENT '申请人的用户Id 即学号 工号',
+  `read_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '记录是否被读，未读0，已读1',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '修改时间',
+  `version` int(11) NOT NULL COMMENT 'Mybatis plus  乐观锁版本控制\r\n',
+  `deleted` tinyint(4) NOT NULL COMMENT 'Mybatis plus 软删除控制\r\n0——未删除\r\n1——已删除',
+  PRIMARY KEY (`us_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ---------------------------
 -- Table structure for tb_goods
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_goods`;
 CREATE TABLE `tb_goods` (
-  `goods_id` int(10) NOT NULL COMMENT '物品ID（主键）',
+  `goods_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '物品ID（主键）',
   `goods_name` varchar(20) NOT NULL COMMENT '物品名称',
   `goods_size` varchar(20) NOT NULL COMMENT '规格',
   `goods_model` varchar(20) NOT NULL COMMENT '型号',
