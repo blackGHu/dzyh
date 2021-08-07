@@ -171,7 +171,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
                     .like("user_name",userName)
 
-                    .like("regist_status",registStatus);
+                    .eq("regist_status",registStatus);
         }
         else if(roleId!=0 && registStatus!=0){
             queryWrapper.like("role_id",roleId)
@@ -180,10 +180,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 
                     .like("user_name",userName)
 
-                    .like("regist_status",registStatus);
+                    .eq("regist_status",registStatus);
         }
         else if(roleId==0 && registStatus==0){
             queryWrapper.like("user_id",userId)
+
+                    .like("regist_status",registStatus)
 
                     .like("user_name",userName);
         }
@@ -192,7 +194,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
                     .like("user_id",userId)
 
-                    .like("user_name",userName);
+                    .like("user_name",userName)
+
+                    .eq("regist_status",registStatus);
         }
 
         Page<UserInfo> page = new Page<>(current,size);

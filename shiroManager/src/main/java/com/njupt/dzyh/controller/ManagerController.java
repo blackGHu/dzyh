@@ -46,9 +46,9 @@ public class ManagerController {
     //查询用户、角色信息
     @RequestMapping("/getUserByCondition/{current}/{size}")
     public CommonResult getUserByCondition(@RequestBody User user, @PathVariable("current") int current,@PathVariable("size") int pageSize){
-        //用户类型存在currentRole中，数值0,1,2,3,4
+        //用户类型存在currentRole中，数值1,2,3,4,5
 
-        Set<String> userIds = userRoleService.getByCondition(user,current,pageSize);
+        Set<String> userIds = userRoleService.getByCondition(user,current,pageSize+1);
         if(userIds.size()==0) return CommonResult.error(CommonResultEm.ERROR,"未查询到结果");
         List<User> result = new ArrayList<>();
 
@@ -132,7 +132,7 @@ public class ManagerController {
     //查看用户申请
     @RequestMapping("/getUserInfoByCondition/{current}/{size}")
     public CommonResult getUserInfoByCondition(@RequestBody UserInfo userInfo, @PathVariable("current") int current,@PathVariable("size") int pageSize){
-        List<UserInfo> userInfos = userInfoService.selectByCondition(userInfo,current,pageSize);
+        List<UserInfo> userInfos = userInfoService.selectByCondition(userInfo,current,pageSize+1);
 
         if(userInfos==null) return CommonResult.error(CommonResultEm.ERROR,"未查询到用户");
 
