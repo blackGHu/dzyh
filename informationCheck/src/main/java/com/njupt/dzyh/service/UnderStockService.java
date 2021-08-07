@@ -11,4 +11,5 @@ public interface UnderStockService {
     List<UnderStock> getByCondition(UnderStock underStock,int current,int size);
     int setStatus(UnderStock underStock);
     int setAllStatus();
+    int delete(UnderStock underStock);
 }

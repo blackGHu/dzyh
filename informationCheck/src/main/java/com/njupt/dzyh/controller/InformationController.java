@@ -54,12 +54,13 @@ public class InformationController {
      * 本段controller没用，仅做测试
      */
     @RequestMapping("/testAdd")
-    public CommonResult testAdd(@RequestParam("model") String model,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size){
+    public CommonResult testAdd(@RequestParam("model") String model,@RequestParam("type") int type,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size){
         Goods goods = new Goods();
         goods.setGoodsName(name)
                 .setGoodsSize(size)
                 .setGoodsModel(model)
-                .setGoodsNumbers(number);
+                .setGoodsNumbers(number)
+                .setCategoryId(type);
         return informationService.add(goods);
     }
 
@@ -70,14 +71,15 @@ public class InformationController {
      * 本段controller没用，仅做测试
      */
     @RequestMapping("/testSub")
-    public CommonResult testSub(@RequestParam("model") String model,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size,@RequestParam("userId") String userId){
+    public CommonResult testSub(@RequestParam("model") String model,@RequestParam("type") int type,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size,@RequestParam("userId") String userId){
         Goods goods = new Goods();
         String msg;
         goods.setGoodsName(name)
                 .setGoodsSize(size)
                 .setGoodsModel(model)
                 .setGoodsNumbers(number)
-                .setUserId(userId);
+                .setUserId(userId)
+                .setCategoryId(type);
 
         return informationService.subtract(goods);
     }
@@ -161,6 +163,18 @@ public class InformationController {
             DownLoad.downloadFile(resource,"underStock.xlsx",request,response);
         }
 
+    }
+
+    @RequestMapping("/deleteUnderStock")
+    public CommonResult deleteUnderStock(@RequestBody UnderStock underStock){
+        int rec = underStockService.delete(underStock);
+        if(rec == 1){
+            return CommonResult.error(CommonResultEm.ERROR,"用户不存在");
+        }
+        else if(rec==-1)
+            return CommonResult.error(CommonResultEm.ERROR,"删除失败");
+        else
+            return CommonResult.success("删除成功");
     }
 
 

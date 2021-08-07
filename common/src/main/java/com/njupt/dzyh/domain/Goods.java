@@ -40,6 +40,8 @@ public class Goods implements Serializable {
 
     private String goodsAddress;
 
+    private Integer categoryId;
+
     private Integer purposeId;
 
     private String userId;

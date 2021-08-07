@@ -44,6 +44,8 @@ public class UnderStockServiceImpl implements UnderStockService {
         String name=underStock.getUsName(),
                 goodSize = underStock.getUsSize(),
                 model = underStock.getUsModel();
+        int typeId = underStock.getUsType();
+
         Date startDate = underStock.getCreateTime();
         Date endDate = underStock.getUpdateTime();
 
@@ -54,6 +56,8 @@ public class UnderStockServiceImpl implements UnderStockService {
 
                 .like("us_model",model)
                 .orderByAsc("create_time","read_status");
+        if(typeId>0)
+            queryWrapper.like("us_type",typeId);
         if(startDate!=null)
             queryWrapper.ge("create_time",startDate);
         if(endDate != null)
@@ -73,6 +77,8 @@ public class UnderStockServiceImpl implements UnderStockService {
         String name=underStock.getUsName(),
                 goodSize = underStock.getUsSize(),
                 model = underStock.getUsModel();
+
+        int typeId = underStock.getUsType();
         Date startDate = underStock.getCreateTime();
         Date endDate = underStock.getUpdateTime();
 
@@ -91,6 +97,8 @@ public class UnderStockServiceImpl implements UnderStockService {
 
                 .like("us_model",model)
                 .orderByAsc("create_time","read_status");
+        if(typeId>0)
+            queryWrapper.like("us_type",typeId);
         if(startDate!=null)
             queryWrapper.ge("create_time",startDate);
         if(endDate != null)
@@ -127,6 +135,19 @@ public class UnderStockServiceImpl implements UnderStockService {
                 underStockDao.updateById(underStock);
             }
         }
+        return 0;
+    }
+
+    @Override
+    public int delete(UnderStock underStock) {
+        QueryWrapper<UnderStock> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("us_size",underStock.getUsSize())
+                .eq("us_model",underStock.getUsModel());
+        List<UnderStock> list = underStockDao.selectList(queryWrapper);
+        if(list.size()==0) return 1;
+        UnderStock temp = list.get(0);
+        int rec = underStockDao.deleteById(temp.getUsId());
+        if(rec==0) return -1;
         return 0;
     }
 

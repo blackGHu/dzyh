@@ -63,6 +63,7 @@ CREATE TABLE `tb_course` (
 DROP TABLE IF EXISTS `tb_repertory`;
 CREATE TABLE `tb_repertory` (
   `repertory_id` int NOT NULL AUTO_INCREMENT COMMENT '物品ID（主键）',
+  `repertory_type` int(10) NOT NULL COMMENT '物品类型ID',
   `repertory_name` varchar(20) NOT NULL COMMENT '物品名称',
   `repertory_size` varchar(20) NOT NULL COMMENT '规格',
   `repertory_model` varchar(20) NOT NULL COMMENT '型号',
@@ -77,6 +78,7 @@ CREATE TABLE `tb_repertory` (
 DROP TABLE IF EXISTS `re_understock`;
 CREATE TABLE `re_understock` (
   `us_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '缺货记录ID（主键）',
+  `us_type` int(10) NOT NULL COMMENT '物品类型ID',
   `us_name` varchar(20) NOT NULL COMMENT '物品名称',
   `us_size` varchar(20) NOT NULL COMMENT '规格',
   `us_model` varchar(20) NOT NULL COMMENT '型号',
@@ -101,6 +103,7 @@ CREATE TABLE `tb_goods` (
   `goods_price` double(10,0) NOT NULL COMMENT '价格',
   `goods_numbers` int(11) NOT NULL COMMENT '物品剩余数量',
   `goods_address` varchar(20) NOT NULL COMMENT '物品存放地',
+  `category_id` int(10) NOT NULL COMMENT '物品类别ID',
   `purpose_id` tinyint(4) NOT NULL COMMENT '物品用途ID',
   `user_id` varchar(11) NOT NULL COMMENT '购买人ID',
   `goods_approval_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '物品申请审核状态：\r\n0——未申请（默认）\r\n1——待审核\r\n2——通过\r\n3——拒绝',

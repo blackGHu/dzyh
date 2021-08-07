@@ -28,6 +28,8 @@ public class Information implements Serializable {
     @TableId(value = "repertory_id",type = IdType.AUTO)
     private Integer repertoryId;
 
+    private Integer repertoryType;
+
     private String repertoryName;
 
     private String repertorySize;

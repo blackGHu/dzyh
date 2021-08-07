@@ -23,6 +23,9 @@ public class UnderStock implements Serializable {
     @TableId(value = "us_id",type = IdType.AUTO)
     private Integer usId;
 
+    //物品类型
+    private Integer usType;
+
     private String usName;
 
     private String usSize;

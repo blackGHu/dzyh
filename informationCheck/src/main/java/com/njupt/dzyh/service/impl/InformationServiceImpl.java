@@ -42,6 +42,7 @@ public class InformationServiceImpl implements InformationService {
             return CommonResult.success(model+"入库成功");
         }
         else{
+            temp.setRepertoryType(goods.getCategoryId());
             temp.setRepertoryName(goods.getGoodsName());
             temp.setRepertorySize(goods.getGoodsSize());
             temp.setRepertoryModel(goods.getGoodsModel());
@@ -67,6 +68,7 @@ public class InformationServiceImpl implements InformationService {
             if(temp.getRepertoryNumbers()-number<0){
                 UnderStock underStock = new UnderStock();
                 underStock.setUsName(temp.getRepertoryName());
+                underStock.setUsType(temp.getRepertoryType());
                 underStock.setUsSize(temp.getRepertorySize());
                 underStock.setUsModel(temp.getRepertoryModel());
                 underStock.setUsNumbers(number);

@@ -33,6 +33,10 @@ public class ListToExcel {
         //写入数据
         for (int i = 0; i < underStocks.size(); i++){
             XSSFRow nrow = sheet.createRow(i+1);
+/*          只能保存类别Id，所以未做更改
+            XSSFCell ncell = nrow.createCell(0);
+            ncell.setCellValue(underStocks.get(i).getUsType());*/
+
             XSSFCell ncell = nrow.createCell(0);
             ncell.setCellValue(underStocks.get(i).getUsName());
             ncell = nrow.createCell(1);
