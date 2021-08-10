@@ -40,6 +40,8 @@ public class InformationServiceImpl implements InformationService {
         if(informationDao.selectOne(queryWrapper)!=null){
             temp = informationDao.selectOne(queryWrapper);
             temp.setRepertoryNumbers(temp.getRepertoryNumbers()+number);
+            if(goods.getGoodsAddress().length()>0)
+                temp.setRepertoryAddress(goods.getGoodsAddress());
             informationDao.update(temp,queryWrapper);
             return CommonResult.success(model+"入库成功");
         }
@@ -49,6 +51,9 @@ public class InformationServiceImpl implements InformationService {
             temp.setRepertorySize(goods.getGoodsSize());
             temp.setRepertoryModel(goods.getGoodsModel());
             temp.setRepertoryNumbers(goods.getGoodsNumbers());
+            if(goods.getGoodsAddress().length()>0)
+                temp.setRepertoryAddress(goods.getGoodsAddress());
+            else temp.setRepertoryAddress("存放地未知。");
             //System.out.println(temp);
             informationDao.insert(temp);
             return CommonResult.success(model+"插入成功");
@@ -80,10 +85,13 @@ public class InformationServiceImpl implements InformationService {
                 System.out.println(rec);
                 return CommonResult.error(CommonResultEm.ERROR,model+"余量不足");
             }
-
+            if(goods.getGoodsAddress().length()>0)
+                temp.setRepertoryAddress(goods.getGoodsAddress());
             temp.setRepertoryNumbers(temp.getRepertoryNumbers()-number);
             informationDao.update(temp,queryWrapper);
-            return CommonResult.success(model+"出库成功");
+            if(goods.getGoodsAddress().length()>0)//表示是信息编辑，不是真的借用
+                return CommonResult.success("信息编辑成功");
+            return CommonResult.success(model+" "+size+"申请成功，请到 "+temp.getRepertoryAddress()+" 领取");
         }
         else{
             return CommonResult.error(CommonResultEm.ERROR,model+"不存在");

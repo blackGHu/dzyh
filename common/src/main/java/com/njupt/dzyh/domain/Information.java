@@ -38,6 +38,8 @@ public class Information implements Serializable {
 
     private Integer repertoryNumbers;
 
+    private String repertoryAddress;
+
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Version
     private Integer version;

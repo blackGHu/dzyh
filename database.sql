@@ -68,6 +68,7 @@ CREATE TABLE `tb_repertory` (
   `repertory_size` varchar(20) NOT NULL COMMENT '规格',
   `repertory_model` varchar(20) NOT NULL COMMENT '型号',
   `repertory_numbers` int NOT NULL COMMENT '物品剩余数量',
+  `repertory_address` varchar(20) NOT NULL COMMENT '物品存放地址',
   `version` int NOT NULL COMMENT 'Mybatis plus  乐观锁版本控制\r\n',
   `deleted` tinyint NOT NULL COMMENT 'Mybatis plus 软删除控制\r\n0——未删除\r\n1——已删除',
   PRIMARY KEY (`repertory_id`)
