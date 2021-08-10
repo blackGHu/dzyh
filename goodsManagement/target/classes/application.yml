@@ -1,14 +1,16 @@
 server:
-  port: 8089
+  port: 8087
 
 
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/db_dzyh?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
     username: root
-    password:
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
+
+
 
 
 mybatis-plus:
@@ -25,3 +27,5 @@ mybatis-plus:
       logic-not-delete-value: 0
       # 逻辑已删除
       logic-delete-value: 1
+
+resource: C:\\Users\\Administrator\\Desktop\\file\\

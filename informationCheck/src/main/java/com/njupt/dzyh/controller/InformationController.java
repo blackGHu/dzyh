@@ -4,12 +4,15 @@ package com.njupt.dzyh.controller;
 import com.njupt.dzyh.dao.InformationDao;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.Information;
+import com.njupt.dzyh.domain.SelectResult;
 import com.njupt.dzyh.domain.UnderStock;
 import com.njupt.dzyh.enums.CommonResultEm;
 
 import com.njupt.dzyh.otherFunctions.DownLoad;
 import com.njupt.dzyh.otherFunctions.ListToExcel;
 import com.njupt.dzyh.service.InformationService;
+import com.njupt.dzyh.service.UnderStockService;
+import com.njupt.dzyh.service.impl.InformationServiceImpl;
 import com.njupt.dzyh.service.impl.UnderStockServiceImpl;
 import com.njupt.dzyh.utils.CommonResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,18 +37,17 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("dzyh/information")
-@Transactional
 public class InformationController {
 
     @Autowired
     private InformationService informationService;
 
     @Autowired
-    private UnderStockServiceImpl underStockService;
+    private UnderStockService underStockService;
 
 
     @Value("${resource}")
-    private String resource;
+    String resource;
 
     /**
      * test
@@ -116,9 +118,10 @@ public class InformationController {
      */
     @RequestMapping("/getUnderStockByCondition/{current}/{size}")
     public CommonResult getUnderStockByCondition(@RequestBody UnderStock underStock,@PathVariable("current") int current,@PathVariable("size") int pageSize) {
-        List<UnderStock> list = underStockService.getByCondition(underStock,current,pageSize+1);
+        SelectResult selectResult = underStockService.getByCondition(underStock,current,pageSize+1);
+        List<UnderStock> list = (List<UnderStock>) selectResult.getList();
         if(list.size()>0)
-            return CommonResult.success(list);
+            return CommonResult.success(new SelectResult(selectResult.getTotal(),list));
         else
             return CommonResult.error(CommonResultEm.ERROR,"未查询到记录");
     }
@@ -143,7 +146,7 @@ public class InformationController {
      */
     @RequestMapping("/readAllStatus")
     public CommonResult readAllStatus() {
-
+        System.out.println(resource);
         int rec = underStockService.setAllStatus();
         if(rec==0)
             return CommonResult.success("一键已读成功");

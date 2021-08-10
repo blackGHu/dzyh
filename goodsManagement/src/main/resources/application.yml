@@ -1,5 +1,5 @@
 server:
-  port: 8089
+  port: 8087
 
 
 spring:
@@ -9,6 +9,8 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
+
+
 
 
 mybatis-plus:
@@ -25,3 +27,5 @@ mybatis-plus:
       logic-not-delete-value: 0
       # 逻辑已删除
       logic-delete-value: 1
+
+resource: C:\\Users\\Administrator\\Desktop\\file\\

@@ -2,11 +2,10 @@ package com.njupt.dzyh.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.njupt.dzyh.domain.SelectResult;
 import com.njupt.dzyh.beans.User;
 import com.njupt.dzyh.beans.UserRole;
 import com.njupt.dzyh.dao.UserRoleDao;
-import com.njupt.dzyh.domain.Information;
-import com.njupt.dzyh.domain.roles.UserInfo;
 import com.njupt.dzyh.domain.roles.UserRoleInfo;
 import com.njupt.dzyh.service.UserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +59,7 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
-    public Set<String> getByCondition(User user,int current,int size) {
+    public SelectResult getByCondition(User user, int current, int size) {
         System.out.println("分页查询 begin");
         if(current<=0){
             current = 1;
@@ -79,10 +78,10 @@ public class UserRoleServiceImpl implements UserRoleService {
         List<UserRoleInfo> records = page.getRecords();
         System.out.println("分页查询 end");
         Set<String> userIds = new HashSet<>();
-        if(records==null) return userIds;
+        if(records==null) return new SelectResult(0L,userIds);
         for(UserRoleInfo record : records)
             userIds.add(record.getUserId());
-        return userIds;
+        return new SelectResult(page.getTotal(),userIds);
     }
 
     @Override

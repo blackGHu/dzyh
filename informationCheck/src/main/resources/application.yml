@@ -1,6 +1,7 @@
 server:
   port: 8089
 
+resource: C:\\Users\\Administrator\\Desktop\\file\\
 
 spring:
   datasource:
@@ -10,5 +11,6 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
-resource: C:\\Users\\Administrator\\Desktop\\file\\
+
+
 

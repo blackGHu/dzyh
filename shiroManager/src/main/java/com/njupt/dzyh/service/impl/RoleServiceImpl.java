@@ -2,7 +2,6 @@ package com.njupt.dzyh.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.njupt.dzyh.beans.Role;
-import com.njupt.dzyh.beans.RolePermission;
 import com.njupt.dzyh.dao.PermissionsDao;
 import com.njupt.dzyh.dao.RoleDao;
 import com.njupt.dzyh.dao.RolePermissionsDao;

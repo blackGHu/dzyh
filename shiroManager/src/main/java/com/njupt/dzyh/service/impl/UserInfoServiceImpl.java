@@ -2,16 +2,14 @@ package com.njupt.dzyh.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.njupt.dzyh.beans.User;
-import com.njupt.dzyh.beans.UserRole;
-import com.njupt.dzyh.dao.UserDao;
-import com.njupt.dzyh.domain.Information;
-import com.njupt.dzyh.domain.roles.UserInfo;
-import com.njupt.dzyh.domain.roles.UserRoleInfo;
-import com.njupt.dzyh.service.UserInfoService;
+import com.njupt.dzyh.domain.SelectResult;
 
-import com.njupt.dzyh.utils.CommonResult;
+
+import com.njupt.dzyh.domain.roles.UserInfo;
+
+import com.njupt.dzyh.service.UserDao;
+import com.njupt.dzyh.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,7 +144,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<UserInfo> selectByCondition(UserInfo user, int current, int size) {
+    public SelectResult selectByCondition(UserInfo user, int current, int size) {
         System.out.println("分页查询 begin");
         if(current<=0){
             current = 1;
@@ -216,7 +214,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 //        long current = page.getCurrent();
 //        long size = page.getSize();
         System.out.println(total + "--" + current + "--" + size);
-        return records;
+        return new SelectResult(total,records);
 
     }
 

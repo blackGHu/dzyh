@@ -1,4 +1,4 @@
-package com.njupt.dzyh.dao;
+package com.njupt.dzyh.service;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.njupt.dzyh.domain.roles.UserInfo;

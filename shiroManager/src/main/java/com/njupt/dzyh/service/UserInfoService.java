@@ -2,7 +2,10 @@ package com.njupt.dzyh.service;
 
 
 import com.njupt.dzyh.beans.User;
+import com.njupt.dzyh.domain.SelectResult;
+
 import com.njupt.dzyh.domain.roles.UserInfo;
+
 
 import java.util.List;
 
@@ -24,6 +27,6 @@ public interface UserInfoService {
     //修改用户密码
     int changePassword(UserInfo userInfo);
     //条件查询
-    List<UserInfo> selectByCondition(UserInfo user,int current,int pageSize);
+    SelectResult selectByCondition(UserInfo user, int current, int pageSize);
     List<UserInfo> selectByCondition(UserInfo user);
 }

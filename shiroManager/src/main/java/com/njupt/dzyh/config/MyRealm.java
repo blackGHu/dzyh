@@ -1,10 +1,7 @@
 package com.njupt.dzyh.config;
 
-import com.njupt.dzyh.beans.Permissions;
 import com.njupt.dzyh.beans.Role;
 import com.njupt.dzyh.beans.User;
-import com.njupt.dzyh.domain.roles.UserInfo;
-import com.njupt.dzyh.service.impl.UserInfoServiceImpl;
 import com.njupt.dzyh.service.impl.UserServiceImpl;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -27,12 +24,15 @@ public class MyRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         logger.info("doGetAuthorizationInfo 授权");
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        String name = (String) principalCollection.getPrimaryPrincipal();
-        User user = userService.getUserById(name);
+        //System.out.println(principalCollection.getPrimaryPrincipal());
+        //String name = (String) principalCollection.getPrimaryPrincipal();
+        //User user = userService.getUserById(name);
+        User user = (User) principalCollection.getPrimaryPrincipal();
         Set<Role> roleSet = user.getRoles();
         for(Role role : roleSet){
             if(role.getRoleId()==user.getCurrentRoleId()) {
                 simpleAuthorizationInfo.addRole(role.getRoleName());
+                //System.out.println(role.getPermissions());
                 if(role.getPermissions()!=null)
                 simpleAuthorizationInfo.addStringPermissions(role.getPermissions());
             }

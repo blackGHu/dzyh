@@ -1,6 +1,7 @@
 package com.njupt.dzyh.controller;
 
 
+import com.njupt.dzyh.domain.SelectResult;
 import com.njupt.dzyh.beans.UpdateUser;
 import com.njupt.dzyh.beans.User;
 import com.njupt.dzyh.domain.roles.UserInfo;
@@ -13,9 +14,10 @@ import com.njupt.dzyh.service.impl.UserInfoServiceImpl;
 import com.njupt.dzyh.service.impl.UserRoleServiceImpl;
 import com.njupt.dzyh.service.impl.UserServiceImpl;
 import com.njupt.dzyh.utils.CommonResult;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,8 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
+@RequiresRoles("管理员")
 @RequestMapping("dzyh/manager")
-@PropertySource(value = "classpath:shiro.properties")
+
 public class ManagerController {
     @Value("${resource}")
     private String resource;
@@ -44,15 +47,19 @@ public class ManagerController {
     private UserInfoServiceImpl userInfoService;
 
     //查询用户、角色信息
+    @RequiresPermissions("getUserByCondition")
     @RequestMapping("/getUserByCondition/{current}/{size}")
     public CommonResult getUserByCondition(@RequestBody User user, @PathVariable("current") int current,@PathVariable("size") int pageSize){
         //用户类型存在currentRole中，数值1,2,3,4,5
-
-        Set<String> userIds = userRoleService.getByCondition(user,current,pageSize+1);
+        System.out.println("11111");
+        SelectResult selectResult = userRoleService.getByCondition(user,current,pageSize+1);
+        Set<String> userIds = (Set<String>) selectResult.getList();
+        System.out.println("11111");
         if(userIds.size()==0) return CommonResult.error(CommonResultEm.ERROR,"未查询到结果");
         List<User> result = new ArrayList<>();
 
         for(String userId : userIds){
+
             User temp = userService.getUserById(userId);
             if(temp==null) continue;
             temp.setRoles(null);
@@ -60,7 +67,7 @@ public class ManagerController {
             result.add(temp);
         }
         if(result.size()==0) return CommonResult.error(CommonResultEm.ERROR,"未查询到结果");
-        return CommonResult.success(result);
+        return CommonResult.success(new SelectResult(selectResult.getTotal(),result));
     }
 
     //下载用户 角色文件
@@ -132,11 +139,12 @@ public class ManagerController {
     //查看用户申请
     @RequestMapping("/getUserInfoByCondition/{current}/{size}")
     public CommonResult getUserInfoByCondition(@RequestBody UserInfo userInfo, @PathVariable("current") int current,@PathVariable("size") int pageSize){
-        List<UserInfo> userInfos = userInfoService.selectByCondition(userInfo,current,pageSize+1);
+        SelectResult selectResult  = userInfoService.selectByCondition(userInfo,current,pageSize+1);
+        List<UserInfo> userInfos = (List<UserInfo>) selectResult.getList();
 
         if(userInfos==null) return CommonResult.error(CommonResultEm.ERROR,"未查询到用户");
 
-        return CommonResult.success(userInfos);
+        return CommonResult.success(new SelectResult(selectResult.getTotal(),userInfos));
     }
 
     //用户申请导出报表

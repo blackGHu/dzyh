@@ -91,6 +91,7 @@ public class GoodsController {
      */
     @RequestMapping("/insertBatchByList")
     public CommonResult insertBatch(@RequestBody List<Goods> goodsList){
+
         System.out.println("goodsList---\t" + goodsList);
         return goodsService.insertBatch(goodsList);
     }

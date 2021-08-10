@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.njupt.dzyh.dao.InformationDao;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.Information;
+import com.njupt.dzyh.domain.SelectResult;
 import com.njupt.dzyh.domain.UnderStock;
 import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.InformationService;
 
+import com.njupt.dzyh.service.UnderStockService;
 import com.njupt.dzyh.utils.CommonResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,7 @@ import java.util.List;
 @Transactional
 public class InformationServiceImpl implements InformationService {
     @Autowired
-    private UnderStockServiceImpl underStockService;
+    private UnderStockService underStockService;
 
     @Autowired
     private InformationDao informationDao;
@@ -114,7 +116,7 @@ public class InformationServiceImpl implements InformationService {
         //System.out.println("返回信息查询数据");
 
         if(records==null) return CommonResult.error(CommonResultEm.ERROR);
-        return CommonResult.success(records);
+        return CommonResult.success(new SelectResult(page.getTotal(),records));
     }
 
     @Override

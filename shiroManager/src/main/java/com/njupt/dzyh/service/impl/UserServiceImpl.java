@@ -3,7 +3,6 @@ package com.njupt.dzyh.service.impl;
 import com.njupt.dzyh.beans.Role;
 import com.njupt.dzyh.beans.User;
 import com.njupt.dzyh.beans.UserRole;
-import com.njupt.dzyh.controller.RegisterController;
 import com.njupt.dzyh.domain.roles.UserInfo;
 import com.njupt.dzyh.service.UserService;
 import org.slf4j.Logger;

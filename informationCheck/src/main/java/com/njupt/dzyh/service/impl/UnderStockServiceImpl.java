@@ -1,21 +1,18 @@
 package com.njupt.dzyh.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.njupt.dzyh.dao.UnderStockDao;
-import com.njupt.dzyh.domain.Goods;
-import com.njupt.dzyh.domain.Information;
-import com.njupt.dzyh.domain.UnderStock;
+import com.njupt.dzyh.domain.*;
 import com.njupt.dzyh.domain.roles.UserInfo;
-import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.UnderStockService;
-import com.njupt.dzyh.utils.CommonResult;
+import com.njupt.dzyh.service.UserTempService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -27,10 +24,11 @@ public class UnderStockServiceImpl implements UnderStockService {
     private UnderStockDao underStockDao;
 
     @Autowired
-    private UserTempServiceImpl userTempService;
+    private UserTempService userTempService;
 
     @Override
     public int insert(UnderStock underStock) {
+
         UserInfo userInfo  = userTempService.getUserInfoByUserId(underStock.getUserId());
         if(userInfo==null||userInfo.getUserName()==null) return -1;
         underStock.setUserId(userInfo.getUserName());
@@ -72,7 +70,7 @@ public class UnderStockServiceImpl implements UnderStockService {
     }
 
     @Override
-    public List<UnderStock> getByCondition(UnderStock underStock, int current, int size) {
+    public SelectResult getByCondition(UnderStock underStock, int current, int size) {
         QueryWrapper<UnderStock> queryWrapper = new QueryWrapper<>();
         String name=underStock.getUsName(),
                 goodSize = underStock.getUsSize(),
@@ -110,7 +108,7 @@ public class UnderStockServiceImpl implements UnderStockService {
         //List<Information> information = informationDao.selectList(queryWrapper);
         //System.out.println("返回信息查询数据");
 
-        return records;
+        return new SelectResult(page.getTotal(), records);
     }
 
     @Override
