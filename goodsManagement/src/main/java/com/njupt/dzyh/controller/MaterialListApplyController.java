@@ -1,5 +1,6 @@
 package com.njupt.dzyh.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.MaterialList;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,6 +84,21 @@ public class MaterialListApplyController {
         String orderDescribes = materialListOrder.getOrderDescribe(); // 获取该料单中申请的物品对象str  以“；”为分割
         String[] materialListArr = orderDescribes.trim().split(";");
         int applyNumber = materialListOrder.getApplyNumber();
+        for(String tempMaterialList:materialListArr){
+            String[] temp = tempMaterialList.trim().split(" ");
+            String name = temp[1];
+            String size = temp[2];
+            String model = temp[3];
+            int newNum = Integer.parseInt(temp[4].substring(0,1));
+            Goods goods = new Goods();
+            goods.setGoodsModel(model)
+                    .setGoodsName(name)
+                    .setGoodsSize(size);
+            int oldNum = informationService.getItem(goods);
+            if(oldNum < newNum * applyNumber){
+                return CommonResult.error(CommonResultEm.ERROR,model + " " + size + "库存不足");
+            }
+        }
         for(String tempMaterialList:materialListArr){
 //            applyNumber * 里面的数  然后进行封装Goods  然后进行subtract
 //            成功则修改审核状态为待审核，插入料单申请表
@@ -309,23 +326,39 @@ public class MaterialListApplyController {
 //    }
 
 
-    @RequestMapping("/selectByConditions")
-    public CommonResult selectByConditions(@RequestBody Map<String,Object> conditionsMap){
-        return materialListService.selectByConditions(conditionsMap);
-    }
+//    @RequestMapping("/selectByConditions")
+//    public CommonResult selectByConditions(@RequestBody Map<String,Object> conditionsMap){
+//        return materialListService.selectByConditions(conditionsMap);
+//    }
 
 
 
     //     ---------导出报表--------------
     @RequestMapping("/generateMaterialListExcel")
-    public CommonResult generateMaterialListExcel(@RequestBody GenerateMaterialListExcel generateMaterialListExcel) throws IOException, ParseException {
+    public CommonResult generateMaterialListExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
+                                                  @Param("outUrl") String outUrl,
+                                                  @Param("fileName") String fileName) throws IOException, ParseException {
+        Object obj = materialListService.selectByMaterialListConditions(conditionsMap).getObj();
+        if(null == obj){
+            return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
+        }
+        List<MaterialList> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(MaterialList.class);
+        GenerateMaterialListExcel generateMaterialListExcel = new GenerateMaterialListExcel(list,outUrl,fileName);
         return materialListService.generateMaterialListExcel(generateMaterialListExcel);
     }
 
 
     //     ---------导出报表--------------
     @RequestMapping("/generateMaterialListOrderExcel")
-    public CommonResult generateMaterialListOrderExcel(@RequestBody GenerateMaterialListOrderExcel generateMaterialListOrderExcel) throws IOException, ParseException {
+    public CommonResult generateMaterialListOrderExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
+                                                       @Param("outUrl") String outUrl,
+                                                       @Param("fileName") String fileName) throws IOException, ParseException {
+        Object obj = materialListService.selectByMaterialListOrderConditions(conditionsMap).getObj();
+        if(null == obj){
+            return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
+        }
+        List<MaterialListOrder> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(MaterialListOrder.class);
+        GenerateMaterialListOrderExcel generateMaterialListOrderExcel = new GenerateMaterialListOrderExcel(list,outUrl,fileName);
         return materialListService.generateMaterialListOrderExcel(generateMaterialListOrderExcel);
     }
 

@@ -35,7 +35,7 @@ public class UnderStock implements Serializable {
 
     private Integer usNumbers;
 
-    private String userId;
+    private String userName;
 
     @TableField(fill = FieldFill.INSERT)
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")

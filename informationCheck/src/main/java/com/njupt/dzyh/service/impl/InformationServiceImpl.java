@@ -97,7 +97,7 @@ public class InformationServiceImpl implements InformationService {
                 underStock.setUsSize(temp.getRepertorySize());
                 underStock.setUsModel(temp.getRepertoryModel());
                 underStock.setUsNumbers(number);
-                underStock.setUserId(goods.getBuyUserName());
+                underStock.setUserName(goods.getBuyUserName());
                 underStock.setReadStatus(0);
                 int rec=underStockService.insert(underStock);
                 System.out.println(rec);

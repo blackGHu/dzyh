@@ -2,9 +2,11 @@ package com.njupt.dzyh.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.dto.GenerateExcel;
 import com.njupt.dzyh.enums.CommonResultEm;
+import com.njupt.dzyh.otherFunctions.DownLoad;
 import com.njupt.dzyh.service.GoodsService;
 import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.utils.CommonResult;
@@ -13,12 +15,17 @@ import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +44,8 @@ public class GoodsController {
 
     private final static Logger logger = LoggerFactory.getLogger(GoodsController.class);
 
+    @Value("${resource}")
+    private String resource;
     @Autowired
     private GoodsService goodsService;
     @Autowired
@@ -278,9 +287,36 @@ public class GoodsController {
 
 
 //     ---------导出报表--------------
+
+    /**
+     *
+     * @param conditionsMap   条件封装成对象
+     * @param outUrl
+     * @param fileName
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     @RequestMapping("/generateExcel")
-    public CommonResult generateExcel(@RequestBody GenerateExcel generateExcel) throws IOException, ParseException {
+    public CommonResult generateExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
+                                      @Param("outUrl") String outUrl,
+                                      @Param("fileName") String fileName) throws IOException, ParseException {
+
+        Object obj = goodsService.selectByConditions(conditionsMap).getObj();
+        if(null == obj){
+            return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
+        }
+        List<Goods> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(Goods.class);
+        GenerateExcel generateExcel = new GenerateExcel(list,outUrl,fileName);
         return goodsService.generateExcel(generateExcel);
+    }
+
+    //    ----------模板下载------------------
+    @RequestMapping("/downLoadGoodsApplyTemplate")
+    public void downLoadTemplate(HttpServletRequest request,
+                                 HttpServletResponse response) throws UnsupportedEncodingException {
+        String fileName = "goodsTemplate.xls";
+        DownLoad.downloadFile(resource,fileName,request,response);
     }
 
 

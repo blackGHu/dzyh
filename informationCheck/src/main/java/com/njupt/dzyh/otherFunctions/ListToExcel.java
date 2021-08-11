@@ -46,7 +46,7 @@ public class ListToExcel {
             ncell = nrow.createCell(3);
             ncell.setCellValue(underStocks.get(i).getUsNumbers());
             ncell = nrow.createCell(4);
-            ncell.setCellValue(underStocks.get(i).getUserId());
+            ncell.setCellValue(underStocks.get(i).getUsName());
             ncell = nrow.createCell(5);
             ncell.setCellValue(underStocks.get(i).getCreateTime().toString());
             ncell = nrow.createCell(6);

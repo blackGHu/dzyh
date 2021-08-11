@@ -39,7 +39,7 @@ import java.util.Map;
  * 注意：ID设置为自增还没有进行操作
  */
 @Service
-public class MaterialListServiceImpl extends ServiceImpl<MaterialListDao, MaterialList> implements MaterialListService {
+public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, MaterialList> implements MaterialListService {
 
     @Autowired
     private MaterialListDao materialListDao;
@@ -208,12 +208,79 @@ public class MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Materi
     }
 
 
-    public CommonResult selectByConditions(Map<String, Object> map) {
-        List<MaterialList> result = materialListDao.selectByMap(map);
-        if(0 == result.size()){
-            return CommonResult.error();
+//    public CommonResult selectByConditions(Map<String, Object> map) {
+//        List<MaterialList> result = materialListDao.selectByMap(map);
+//        if(0 == result.size()){
+//            return CommonResult.error();
+//        }
+//        return CommonResult.success(result);
+//    }
+
+
+    public CommonResult selectByMaterialListConditions(Map<String, Object> conditionsMap) {
+        System.out.println("条件查询 begin");
+        List<MaterialList> list = null;
+        QueryWrapper<MaterialList> wrapper = new QueryWrapper<>();
+        //没有条件
+        if(null == conditionsMap || 0 == conditionsMap.size()){
+            list = materialListDao.selectList(null);
+        }else {
+            // 有条件
+            if(conditionsMap.containsKey("collegeId")){
+                wrapper.eq("college_id",conditionsMap.get("collegeId"));
+                conditionsMap.remove("collegeId");
+            }
+            if(conditionsMap.containsKey("majorId")){
+                wrapper.eq("major_id",conditionsMap.get("majorId"));
+                conditionsMap.remove("majorId");
+            }
+            for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (CommonUtil.isNotNull(value)) {
+                    wrapper.like(CommonUtil.camel2Underline(key), value);
+                }
+            }
+            list = materialListDao.selectList(wrapper);
         }
-        return CommonResult.success(result);
+        if(0 == list.size() || null == list){
+            return CommonResult.error();
+        }else {
+            return CommonResult.success(list);
+        }
+    }
+
+    public CommonResult selectByMaterialListOrderConditions(Map<String, Object> conditionsMap) {
+        System.out.println("条件查询 begin");
+        List<MaterialListOrder> list = null;
+        QueryWrapper<MaterialListOrder> wrapper = new QueryWrapper<>();
+        //没有条件
+        if(null == conditionsMap || 0 == conditionsMap.size()){
+            list = materialListOrderDao.selectList(null);
+        }else {
+            // 有条件
+            if(conditionsMap.containsKey("collegeName")){
+                wrapper.eq("college_name",conditionsMap.get("collegeName"));
+                conditionsMap.remove("collegeName");
+            }
+            if(conditionsMap.containsKey("majorName")){
+                wrapper.eq("major_name",conditionsMap.get("majorName"));
+                conditionsMap.remove("majorName");
+            }
+            for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (CommonUtil.isNotNull(value)) {
+                    wrapper.like(CommonUtil.camel2Underline(key), value);
+                }
+            }
+            list = materialListOrderDao.selectList(wrapper);
+        }
+        if(0 == list.size() || null == list){
+            return CommonResult.error();
+        }else {
+            return CommonResult.success(list);
+        }
     }
 
 

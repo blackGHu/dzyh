@@ -70,7 +70,13 @@ public class InformationController {
      * 本段controller没用，仅做测试
      */
     @RequestMapping("/testSub")
-    public CommonResult testSub(@RequestParam("model") String model,@RequestParam("type") String type,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size,@RequestParam("userId") String userId,@RequestParam("address") String address){
+    public CommonResult testSub(@RequestParam("model") String model,
+                                @RequestParam("type") String type,
+                                @RequestParam("number") int number,
+                                @RequestParam("name") String name,
+                                @RequestParam("size") String size,
+                                @RequestParam("userId") String userId,
+                                @RequestParam("address") String address){
         Goods goods = new Goods();
         String msg;
         goods.setGoodsName(name)

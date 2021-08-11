@@ -26,4 +26,6 @@ public interface CategoryService {
 
     CommonResult selectByConditions(Map<String, Object> map);
 
+    CommonResult generateExcel(List<Category> list,String outUrl,String fileName) throws IOException, ParseException;
+
 }

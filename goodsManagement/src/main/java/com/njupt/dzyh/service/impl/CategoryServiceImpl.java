@@ -1,9 +1,12 @@
 package com.njupt.dzyh.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.njupt.dzyh.dao.CategoryDao;
 import com.njupt.dzyh.domain.Category;
+import com.njupt.dzyh.domain.dto.GenerateExcel;
 import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.CategoryService;
 import com.njupt.dzyh.utils.CommonResult;
@@ -12,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -172,6 +177,26 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, Category> impl
         }
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public CommonResult generateExcel(List<Category> list,String outUrl,String fileName) throws IOException, ParseException {
+        // 1、首先根据查询查出所需信息（查询全部、条件查询）
+        // 2、然后将结果封装成List<T>后 再封装成GenerateExcel实体
+        // 3、调用service.generateExcel（。。。）
+        List<Category> goodsList = list;
+        System.out.println("[generateExcel]  goodsList---\t" + goodsList);
+        // goodsList 中的 createTime 和 updateTime 正常，后面转成JSON就不正常了
+        // 需添加注解 @JSONField(format = "yyyy-MM-dd HH:mm:ss")  或者 将数据转换成json对象时，使用JSON.toJSON
+        if (0 == goodsList.size()) {
+            return CommonResult.error();
+        }
+        JSONArray jsonArray = JSONObject.parseArray(JSONObject.toJSONString(goodsList));
+        System.out.println("[generateExcel]  jsonArray---\t" + jsonArray.toJSONString());
+
+        //        "../excelTest/","test.xls"
+        CommonUtil.JsonToExcel(jsonArray, outUrl, fileName);
+        return CommonResult.success();
+    }
 
 
 

@@ -129,14 +129,59 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
         return CommonResult.success(new GoodsPageDto(total,goodsList));
     }
 
-
-    public CommonResult selectByConditions(Map<String, Object> map) {
-        List<Goods> result = goodsDao.selectByMap(map);
-        if(0 == result.size()){
-            return CommonResult.error();
+    /**
+     * 条件查询所有
+     * @return
+     */
+    public CommonResult selectByConditions(Map<String,Object> conditionsMap) {
+        System.out.println("条件查询 begin");
+        List<Goods> list = null;
+        QueryWrapper<Goods> wrapper = new QueryWrapper<>();
+        //没有条件
+        if(null == conditionsMap || 0 == conditionsMap.size()){
+            list = goodsDao.selectList(null);
+        }else {
+            // 有条件
+            if (conditionsMap.containsKey("goodsName")) {
+                wrapper.like("goods_name", conditionsMap.get("goodsName"));
+                conditionsMap.remove("goodsName");
+            }
+            if (conditionsMap.containsKey("goodsSize")) {
+                wrapper.like("goods_size", conditionsMap.get("goodsSize"));
+                conditionsMap.remove("goodsSize");
+            }
+            if (conditionsMap.containsKey("goodsModel")) {
+                wrapper.like("goods_model", conditionsMap.get("goodsModel"));
+                conditionsMap.remove("goodsModel");
+            }
+            if (conditionsMap.containsKey("buyUserName")) {
+                wrapper.like("buy_user_name", conditionsMap.get("buyUserName"));
+                conditionsMap.remove("buyUserName");
+            }
+            for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (CommonUtil.isNotNull(value)) {
+                    wrapper.eq(CommonUtil.camel2Underline(key), value);
+                }
+            }
+            list = goodsDao.selectList(wrapper);
         }
-        return CommonResult.success(result);
+            if(0 == list.size() || null == list){
+                return CommonResult.error();
+            }else {
+                return CommonResult.success(list);
+            }
     }
+
+
+//    public CommonResult selectByConditions(Map<String, Object> map) {
+//        List<Goods> result = goodsDao.selectByMap(map);
+//        if(0 == result.size()){
+//            return CommonResult.error();
+//        }
+//        return CommonResult.success(result);
+//    }
 
 
 //     ---------插入操作--------------

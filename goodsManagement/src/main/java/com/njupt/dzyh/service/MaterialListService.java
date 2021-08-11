@@ -31,7 +31,10 @@ public interface MaterialListService {
 
 //    CommonResult updateBatch(List<MaterialList> materialListList);
 
-    CommonResult selectByConditions(Map<String, Object> map);
+//    CommonResult selectByConditions(Map<String, Object> map);
+
+    CommonResult selectByMaterialListConditions(Map<String, Object> conditionsMap);
+    CommonResult selectByMaterialListOrderConditions(Map<String, Object> conditionsMap);
 
     CommonResult selectAllMaterialListByPage(int current, int size, Map<String, Object> conditionsMap);
     CommonResult selectAllMaterialListOrderByPage(int current, int size, Map<String, Object> conditionsMap);

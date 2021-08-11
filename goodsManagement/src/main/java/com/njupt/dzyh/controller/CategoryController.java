@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +163,25 @@ public class CategoryController {
             result.setResultMessage("Excel读取失败");
         }
         return result;
+    }
+
+
+
+
+    @RequestMapping("/daochu1")
+    public CommonResult daochu(@Param("outUrl") String outUrl,
+                               @Param("fileName") String fileName) throws IOException, ParseException {
+
+        List<Category> list = JSONArray.parseArray(JSONArray.toJSONString(selectAllCategory().getObj())).toJavaList(Category.class);
+        return categoryService.generateExcel(list,outUrl,fileName);
+
+    }
+    @RequestMapping("/daochu2")
+    public CommonResult daochu() throws IOException, ParseException {
+
+        List<Category> list = JSONArray.parseArray(JSONArray.toJSONString(selectAllCategory().getObj())).toJavaList(Category.class);
+        return categoryService.generateExcel(list,"D:\\xsc_work\\","daochuCategory.xlsx");
+
     }
 
 }

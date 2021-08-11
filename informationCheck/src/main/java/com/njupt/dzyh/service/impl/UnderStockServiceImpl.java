@@ -29,9 +29,9 @@ public class UnderStockServiceImpl implements UnderStockService {
     @Override
     public int insert(UnderStock underStock) {
 
-        UserInfo userInfo  = userTempService.getUserInfoByUserId(underStock.getUserId());
-        if(userInfo==null||userInfo.getUserName()==null) return -1;
-        underStock.setUserId(userInfo.getUserName());
+        //UserInfo userInfo  = userTempService.getUserInfoByUserId(underStock.getUsName());
+        //if(userInfo==null||userInfo.getUserName()==null) return -1;
+        //underStock.setUsName(underStock.getUserName());
         int rec = underStockDao.insert(underStock);
         return rec;
     }

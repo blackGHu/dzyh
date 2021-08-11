@@ -141,12 +141,56 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyDao, GoodsApply
     }
 
 
-    public CommonResult selectByConditions(Map<String, Object> map) {
-        List<GoodsApply> result = goodsApplyDao.selectByMap(map);
-        if(0 == result.size()){
-            return CommonResult.error();
+    public CommonResult selectByConditions(Map<String, Object> conditionsMap) {
+        System.out.println("条件查询 begin");
+        List<GoodsApply> list = null;
+        QueryWrapper<GoodsApply> wrapper = new QueryWrapper<>();
+        //没有条件
+        if(null == conditionsMap || 0 == conditionsMap.size()){
+            list = goodsApplyDao.selectList(null);
+        }else {
+            // 有条件
+            if(conditionsMap.containsKey("categoryId")){
+                wrapper.eq("category_id",conditionsMap.get("categoryId"));
+                conditionsMap.remove("categoryId");
+            }
+            if(conditionsMap.containsKey("purposeId")){
+                wrapper.eq("purpose_id",conditionsMap.get("purposeId"));
+                conditionsMap.remove("purposeId");
+            }
+            if(conditionsMap.containsKey("goodsUseStatus")){
+                wrapper.eq("goods_use_status",conditionsMap.get("goodsUseStatus"));
+                conditionsMap.remove("goodsUseStatus");
+            }
+            //  当有时间范围的时候需要编写   between(...)
+            if (conditionsMap.containsKey("borrowTime")) {
+                //  如果只有申请日期查询，条件为大于等于这个日期
+                //  如果有申请日期，还有归还日期，则筛选这两个日期间的
+                if (CommonUtil.isNotNull(conditionsMap.get("borrowTime"))) {
+                    wrapper.ge("borrow_time", conditionsMap.get("borrowTime"));
+                }
+                conditionsMap.remove("borrowTime");
+            }
+            if (conditionsMap.containsKey("returnTime")) {
+                if (CommonUtil.isNotNull(conditionsMap.get("returnTime"))) {
+                    wrapper.le("return_time", conditionsMap.get("returnTime"));
+                }
+                conditionsMap.remove("returnTime");
+            }
+            for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (CommonUtil.isNotNull(value)) {
+                    wrapper.like(CommonUtil.camel2Underline(key), value);
+                }
+            }
+            list = goodsApplyDao.selectList(wrapper);
         }
-        return CommonResult.success(result);
+        if(0 == list.size() || null == list){
+            return CommonResult.error();
+        }else {
+            return CommonResult.success(list);
+        }
     }
 
 
@@ -325,6 +369,7 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyDao, GoodsApply
             CommonUtil.JsonToExcel(jsonArray, generateGoodsApplyExcel.getOutUrl(), generateGoodsApplyExcel.getFileName());
             return CommonResult.success();
     }
+
 
 
 
