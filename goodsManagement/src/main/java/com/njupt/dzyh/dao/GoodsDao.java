@@ -23,4 +23,7 @@ public interface GoodsDao extends BaseMapper<Goods> {
     Integer insertBatchSomeColumn(List<Goods> goodsList);
 
     Integer updateBatchSomeColumn(List<Goods> goodsList);
+
+
+
 }

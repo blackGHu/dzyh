@@ -11,16 +11,26 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.njupt.dzyh.utils.concasts.CommonConst;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
+import javax.xml.crypto.Data;
+import java.io.*;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Random;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 项目名称: common. 包: com.migu.redstone.microservice.common.util 类名称:
@@ -101,7 +111,7 @@ public final class CommonUtil {
 
 
 	/**
-	 * Excel to  json
+	 * Excel转Json
 	 * @param url
 	 *
 	 * xsc
@@ -109,6 +119,7 @@ public final class CommonUtil {
 	public static JSONObject excelToJson(String url){
 		try {
 			FileInputStream inp = new FileInputStream(new File(url));
+//			FileMagic fm = FileMagic.valueOf(inp);
 			Workbook workbook = WorkbookFactory.create(inp);
 			//获取sheet数
 			int sheetNum = workbook.getNumberOfSheets();
@@ -181,9 +192,10 @@ public final class CommonUtil {
 	}
 
 	/**
-	 *
+	 *	Excel转Json
 	 * @param file
 	 * @return
+	 * xsc
 	 */
 	public static JSONObject excelToJson(MultipartFile file){
 		try {
@@ -257,6 +269,112 @@ public final class CommonUtil {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Json 导出为 Excel
+	 * @param jsonArray
+	 * @return
+	 * xsc
+	 */
+	public static void JsonToExcel(JSONArray jsonArray,String outUrl,String fileName) throws IOException, ParseException {
+
+		System.out.println("[JsonToExcel]  jsonArray---\t" + jsonArray.toJSONString());
+		JSONObject[] jsonObjects = new JSONObject[jsonArray.size()];
+//		7.JSONArray转JSONObject
+		for(int i=0 ; i < jsonArray.size() ;i++)
+		{
+			//获取每一个JsonObject对象
+			JSONObject myjObject = jsonArray.getJSONObject(i);
+			jsonObjects[i] = myjObject;
+			System.out.println("[JsonToExcel]  myjObject---\t" + myjObject.toJSONString());
+		}
+		Set<String> keys = null;
+		// 创建HSSFWorkbook对象
+		HSSFWorkbook wb = new HSSFWorkbook();
+//		WritableWorkbook writableWorkbook = Workbook.createWorkbook(outputStream);
+//		WritableSheet sheet = writableWorkbook.createSheet("sheet0");// 创建新的一页
+
+		// 创建HSSFSheet对象
+		HSSFSheet sheet = wb.createSheet("sheet0");
+//
+//		FileReader reader = new FileReader("c://resource.txt");
+//		BufferedReader br = new BufferedReader(reader);
+		String str = null;
+		int roleNo = 0;
+		int rowNo = 0;
+		for (int k=0;k<jsonObjects.length;k++) {
+//			JSONObject jsonObject = JSONObject.parseObject(str);
+			// 创建HSSFRow对象
+			HSSFRow row = sheet.createRow(roleNo++);
+			// 创建HSSFCell对象
+			if (keys == null) {
+				//标题
+				keys = jsonObjects[k].keySet();
+				System.out.println("[JsonToExcel]  keys---\t" + keys);
+				for (String s : keys) {
+					HSSFCell cell = row.createCell(rowNo++);
+					cell.setCellValue(s);
+				}
+				rowNo = 0;
+				row = sheet.createRow(roleNo++);
+			}
+
+			for (String s : keys) {
+				//  createTime  updateTime需要进行dataTime格式化处理然后
+
+				HSSFCell cell = row.createCell(rowNo++);
+//				String temp = jsonObjects[k].getString(s);
+//				System.out.println("[JsonToExcel]  jsonObjects[k]---\t" + jsonObjects[k]);
+//				if(s.equals("updateTime") || s.equals("createTime")){
+//					temp = DateCommonUtil.getFormatDateStr(new Date(temp),CommonConst.DATEFORMAT.TZ_FORMAT);
+//				}
+//				System.out.println("[JsonToExcel]  temp---\t" + temp);
+//				s = DateCommonUtil.getFormatDateStr();;
+				cell.setCellValue(jsonObjects[k].getString(s));
+			}
+			rowNo = 0;
+//			System.out.println(rowNo);
+
+		}
+
+		// 输出Excel文件
+		FileOutputStream output = new FileOutputStream(outUrl + fileName);
+		wb.write(output);
+//		wb.
+		output.flush();
+		output.close();
+
+	}
+
+
+	/**
+	 * 驼峰转下划线
+	 * @param line
+	 * @return
+	 */
+	public static String camel2Underline(String line) {
+		if (line == null || "".equals(line)) {
+			return "";
+
+		}
+
+		line = String.valueOf(line.charAt(0)).toUpperCase().concat(line.substring(1));
+
+		StringBuffer sb = new StringBuffer();
+
+		Pattern pattern = Pattern.compile("[A-Z]([a-z\\d]+)?");
+
+		Matcher matcher = pattern.matcher(line);
+
+		while (matcher.find()) {
+			String word = matcher.group();
+
+			sb.append(word.toLowerCase());
+
+			sb.append(matcher.end() == line.length() ? "" : "_");
+		}
+		return sb.toString();
 	}
 
 }

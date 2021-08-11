@@ -7,8 +7,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="common" />
         <module name="informationCheck" />
+        <module name="common" />
+        <module name="shiroManager" />
         <module name="goodsManagement" />
       </profile>
     </annotationProcessing>
@@ -18,6 +19,7 @@
       <module name="common" options="-parameters" />
       <module name="goodsManagement" options="-parameters" />
       <module name="informationCheck" options="-parameters" />
+      <module name="shiroManager" options="-parameters" />
     </option>
   </component>
 </project>

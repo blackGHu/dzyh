@@ -5,9 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.njupt.dzyh.dao.InformationDao;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.Information;
+import com.njupt.dzyh.domain.SelectResult;
+import com.njupt.dzyh.domain.UnderStock;
 import com.njupt.dzyh.enums.CommonResultEm;
-import com.njupt.dzyh.service.InformationService;
 
+import com.njupt.dzyh.service.InformationService;
+import com.njupt.dzyh.service.UnderStockService;
 import com.njupt.dzyh.utils.CommonResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,76 +21,128 @@ import java.util.List;
 @Service
 @Transactional
 public class InformationServiceImpl implements InformationService {
+    @Autowired
+    private UnderStockService underStockService;
 
     @Autowired
     private InformationDao informationDao;
 
     @Override
+    public int getItem(Goods goods) {
+        String model = goods.getGoodsModel();
+        int number = goods.getGoodsNumbers();
+        String size = goods.getGoodsSize();
+
+        QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("repertory_model",model)
+                .eq("repertory_size",size);
+        Information temp = informationDao.selectOne(queryWrapper);
+        if(temp==null){
+            return 0;
+        }
+        return temp.getRepertoryNumbers();
+    }
+
+    @Override
     public CommonResult add(Goods goods) {
         String model = goods.getGoodsModel();
         int number = goods.getGoodsNumbers();
+        String size = goods.getGoodsSize();
 
         QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("repertory_model",model);
-        Information temp = informationDao.selectOne(queryWrapper);
-        //System.out.println(goods);
-        if(temp!=null){
+        queryWrapper.eq("repertory_model",model)
+                    .eq("repertory_size",size);
+        Information temp = new Information();
+        if(informationDao.selectOne(queryWrapper)!=null){
+            temp = informationDao.selectOne(queryWrapper);
             temp.setRepertoryNumbers(temp.getRepertoryNumbers()+number);
+            if(goods.getGoodsAddress().length()>0)
+                temp.setRepertoryAddress(goods.getGoodsAddress());
             informationDao.update(temp,queryWrapper);
             return CommonResult.success(model+"入库成功");
         }
         else{
-            temp = new Information();
+            temp.setRepertoryType(goods.getCategoryName());
             temp.setRepertoryName(goods.getGoodsName());
             temp.setRepertorySize(goods.getGoodsSize());
             temp.setRepertoryModel(goods.getGoodsModel());
             temp.setRepertoryNumbers(goods.getGoodsNumbers());
+            if(goods.getGoodsAddress().length()>0)
+                temp.setRepertoryAddress(goods.getGoodsAddress());
+            else temp.setRepertoryAddress("存放地未知。");
             //System.out.println(temp);
             informationDao.insert(temp);
             return CommonResult.success(model+"插入成功");
         }
     }
 
+
+
     @Override
     public CommonResult subtract(Goods goods) {
         String model = goods.getGoodsModel();
         int number = goods.getGoodsNumbers();
+        String size = goods.getGoodsSize();
 
         QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("repertory_model",model);
+        queryWrapper.eq("repertory_model",model)
+                .eq("repertory_size",size);
         Information temp = informationDao.selectOne(queryWrapper);
         //System.out.println(goods);
         if(temp!=null){
-            if(temp.getRepertoryNumbers()-number<0)
+            if(temp.getRepertoryNumbers()-number<0){
+                UnderStock underStock = new UnderStock();
+                underStock.setUsName(temp.getRepertoryName());
+                underStock.setUsType(temp.getRepertoryType());
+                underStock.setUsSize(temp.getRepertorySize());
+                underStock.setUsModel(temp.getRepertoryModel());
+                underStock.setUsNumbers(number);
+                underStock.setUserId(goods.getBuyUserName());
+                underStock.setReadStatus(0);
+                int rec=underStockService.insert(underStock);
+                System.out.println(rec);
                 return CommonResult.error(CommonResultEm.ERROR,model+"余量不足");
+            }
+            if(goods.getGoodsAddress().length()>0)
+                temp.setRepertoryAddress(goods.getGoodsAddress());
             temp.setRepertoryNumbers(temp.getRepertoryNumbers()-number);
             informationDao.update(temp,queryWrapper);
-            return CommonResult.success(model+"出库成功");
+            if(goods.getGoodsAddress().length()>0)//表示是信息编辑，不是真的借用
+                return CommonResult.success("信息编辑成功");
+            return CommonResult.success(model+" "+size+"申请成功，请到 "+temp.getRepertoryAddress()+" 领取");
         }
         else{
             return CommonResult.error(CommonResultEm.ERROR,model+"不存在");
         }
     }
 
-    public CommonResult selectByCondition(Information con) {
+    public CommonResult selectByCondition(Information con,int current,int size) {
         QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
-        String name=con.getRepertoryName(),
-                size = con.getRepertorySize(),
-                model = con.getRepertoryModel();
-       /* if(name.length()==0) name = " ";
-        if(size.length()==0) size=" ";
-        if(model.length()==0) model=" ";*/
 
-        queryWrapper.like("repertory_name",name)
 
-                    .like("repertory_size",size)
+        System.out.println("分页查询 begin");
+        if(current<=0){
+            current = 1;
+        }
+        if(size<=0){
+            size = 4;
+        }
 
-                    .like("repertory_model",model);
-        List<Information> information = informationDao.selectList(queryWrapper);
+        queryWrapper.like("repertory_name",con.getRepertoryName())
+
+                    .like("repertory_size",con.getRepertorySize())
+
+                    .like("repertory_model",con.getRepertoryModel());
+
+        Page<Information> page = new Page<>(current,size);
+        informationDao.selectPage(page,queryWrapper);
+        List<Information> records = page.getRecords();
+        System.out.println("分页查询 end");
+        //List<Information> information = informationDao.selectList(queryWrapper);
         //System.out.println("返回信息查询数据");
 
-        if(information.size()==0) return CommonResult.error(CommonResultEm.ERROR);
-        return CommonResult.success(information);
+        if(records==null) return CommonResult.error(CommonResultEm.ERROR);
+        return CommonResult.success(new SelectResult(page.getTotal(),records));
     }
 
     @Override
@@ -107,7 +162,7 @@ public class InformationServiceImpl implements InformationService {
 //        long current = page.getCurrent();
 //        long size = page.getSize();
         System.out.println(total + "--" + current + "--" + size);
-        if(0 ==records.size()){
+        if(records==null){
             return CommonResult.error();
         }
         return CommonResult.success(records);

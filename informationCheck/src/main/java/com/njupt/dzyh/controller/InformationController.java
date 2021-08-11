@@ -1,20 +1,24 @@
 package com.njupt.dzyh.controller;
 
 
-import com.njupt.dzyh.dao.InformationDao;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.Information;
+import com.njupt.dzyh.domain.SelectResult;
+import com.njupt.dzyh.domain.UnderStock;
 import com.njupt.dzyh.enums.CommonResultEm;
 
+import com.njupt.dzyh.otherFunctions.DownLoad;
+import com.njupt.dzyh.otherFunctions.ListToExcel;
 import com.njupt.dzyh.service.InformationService;
+import com.njupt.dzyh.service.UnderStockService;
 import com.njupt.dzyh.utils.CommonResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -29,35 +33,53 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("dzyh/information")
-@Transactional
 public class InformationController {
 
     @Autowired
     private InformationService informationService;
 
+    @Autowired
+    private UnderStockService underStockService;
+
+
+    @Value("${resource}")
+    String resource;
 
     /**
      * test
      * @return
+     *
+     * 本段controller没用，仅做测试
      */
     @RequestMapping("/testAdd")
-    public CommonResult testAdd(@RequestParam("model") String model,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size){
+    public CommonResult testAdd(@RequestParam("model") String model,@RequestParam("type") String type,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size,@RequestParam("address") String address){
         Goods goods = new Goods();
         goods.setGoodsName(name)
                 .setGoodsSize(size)
                 .setGoodsModel(model)
-                .setGoodsNumbers(number);
+                .setGoodsNumbers(number)
+                .setGoodsAddress(address)
+                .setCategoryName(type);
         return informationService.add(goods);
     }
 
+    /**
+     * test
+     * @return
+     *
+     * 本段controller没用，仅做测试
+     */
     @RequestMapping("/testSub")
-    public CommonResult testSub(@RequestParam("model") String model,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size){
+    public CommonResult testSub(@RequestParam("model") String model,@RequestParam("type") String type,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size,@RequestParam("userId") String userId,@RequestParam("address") String address){
         Goods goods = new Goods();
         String msg;
         goods.setGoodsName(name)
                 .setGoodsSize(size)
                 .setGoodsModel(model)
-                .setGoodsNumbers(number);
+                .setGoodsNumbers(number)
+                .setBuyUserName(userId)
+                .setCategoryName(type)
+                .setGoodsAddress(address);
 
         return informationService.subtract(goods);
     }
@@ -68,16 +90,13 @@ public class InformationController {
 
 
     /**
-     * 查询库存信息
+     * 按条件查询库存信息
      * @return
      */
-    @RequestMapping("/selectByCondition")
-    public CommonResult selectByCondition(@RequestParam("name") String name, @RequestParam("size") String size, @RequestParam("model") String model){
-        Information con = new Information();
-        con.setRepertoryName(name);
-        con.setRepertoryModel(model);
-        con.setRepertorySize(size);
-        return informationService.selectByCondition(con);
+    @RequestMapping("/selectByCondition/{current}/{size}")
+    public CommonResult selectByCondition(@PathVariable("current") int current,@PathVariable("size") int pageSize,@RequestBody Information con){
+
+        return informationService.selectByCondition(con,current,pageSize+1);
     }
 
     /**
@@ -87,12 +106,77 @@ public class InformationController {
     @RequestMapping("/selectByPage/{current}/{size}")
     public CommonResult selectByPage(@PathVariable("current") int current,@PathVariable("size") int pageSize) {
 
-        return informationService.selectAllInfoByPage(current, pageSize);
+        return informationService.selectAllInfoByPage(current, pageSize+1);
     }
 
 
+    /**
+     * 返回库存不足记录
+     * @return
+     */
+    @RequestMapping("/getUnderStockByCondition/{current}/{size}")
+    public CommonResult getUnderStockByCondition(@RequestBody UnderStock underStock,@PathVariable("current") int current,@PathVariable("size") int pageSize) {
+        SelectResult selectResult = underStockService.getByCondition(underStock,current,pageSize+1);
+        List<UnderStock> list = (List<UnderStock>) selectResult.getList();
+        if(list.size()>0)
+            return CommonResult.success(new SelectResult(selectResult.getTotal(),list));
+        else
+            return CommonResult.error(CommonResultEm.ERROR,"未查询到记录");
+    }
 
+    /**
+     * 已读库存不足记录,重点是返回记录的Id
+     * @return
+     */
+    @RequestMapping("/readStatus")
+    public CommonResult readStatus(@RequestBody UnderStock underStock) {
+        if(underStock.getUsId()==0) return CommonResult.error(CommonResultEm.ERROR,"记录Id为空");
+        int rec = underStockService.setStatus(underStock);
+        if(rec==0)
+            return CommonResult.success("已读成功");
+        else
+            return CommonResult.error(CommonResultEm.ERROR,"已读失败");
+    }
 
+    /**
+     * 一键已读库存不足记录
+     * @return
+     */
+    @RequestMapping("/readAllStatus")
+    public CommonResult readAllStatus() {
+        System.out.println(resource);
+        int rec = underStockService.setAllStatus();
+        if(rec==0)
+            return CommonResult.success("一键已读成功");
+        else
+            return CommonResult.error(CommonResultEm.ERROR,"一键已读失败");
+    }
+
+    /**
+     * 导出库存不足记录
+     * @return
+     */
+    @RequestMapping("/underStockFile")
+    public void underStockFile(@RequestBody UnderStock underStock, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<UnderStock> list = underStockService.getByCondition(underStock);
+        if(list!=null){
+            ListToExcel.underStockToExcel(resource,list);
+            DownLoad.downloadFile(resource,"underStock.xlsx",request,response);
+        }
+
+    }
+
+    @RequestMapping("/deleteUnderStock")
+    public CommonResult deleteUnderStock(@RequestBody UnderStock underStock){
+        int rec = underStockService.delete(underStock);
+        if(rec == 1){
+            return CommonResult.error(CommonResultEm.ERROR,"用户不存在");
+        }
+        else if(rec==-1)
+            return CommonResult.error(CommonResultEm.ERROR,"删除失败");
+        else
+            return CommonResult.success("删除成功");
+    }
 
 
 }

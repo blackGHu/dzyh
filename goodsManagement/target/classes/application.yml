@@ -1,12 +1,12 @@
 server:
-  port: 8089
+  port: 8082
 
-
+resource: D:\\xsc_work\\低值易耗品管理系统\\file
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/db_dzyh?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
     username: root
-    password:
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 

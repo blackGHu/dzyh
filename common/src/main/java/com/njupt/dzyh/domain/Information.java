@@ -28,6 +28,8 @@ public class Information implements Serializable {
     @TableId(value = "repertory_id",type = IdType.AUTO)
     private Integer repertoryId;
 
+    private String repertoryType;
+
     private String repertoryName;
 
     private String repertorySize;
@@ -35,6 +37,8 @@ public class Information implements Serializable {
     private String repertoryModel;
 
     private Integer repertoryNumbers;
+
+    private String repertoryAddress;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Version

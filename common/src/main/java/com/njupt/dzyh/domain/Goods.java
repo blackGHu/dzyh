@@ -1,6 +1,8 @@
 package com.njupt.dzyh.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.*;
+import com.njupt.dzyh.utils.concasts.CommonConst;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +27,8 @@ import java.util.Date;
 @Accessors(chain = true)
 public class Goods implements Serializable {
 
-    @TableId("goods_id")
+    //  物品ID在插入的是否需要自增？
+    @TableId(value = "goods_id", type = IdType.AUTO)
     private Integer goodsId;
 
     private String goodsName;
@@ -40,18 +43,37 @@ public class Goods implements Serializable {
 
     private String goodsAddress;
 
-    private Integer purposeId;
+    private String categoryName;
 
-    private String userId;
+    // 物品本身的用途属性
+    private String purposeName;
 
-    private Integer goodsApprovalStatus;
+    // 购买人
+    private String buyUserName;
 
-    private Integer goodsUseStatus;
+    // 权限ID  默认0 访客
+    private Integer roleId;
+
+//    // 申请人ID —— user_name
+//    private String applyUserName;
+//
+//    // 审批人ID —— user_name
+//    private String approvalUserName;
+
+
+
+//    //申请审核状态   默认 -1 未申请 0 待审核 1 通过 2 拒绝
+//    private Integer goodsApprovalStatus;
+//
+//    //使用状态    默认 -1  未使用  0 借用 1 领用 2 归还 3 报废
+//    private Integer goodsUseStatus;
 
     @TableField(fill = FieldFill.INSERT)
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)

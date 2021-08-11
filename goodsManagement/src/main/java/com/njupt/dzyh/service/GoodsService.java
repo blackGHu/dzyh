@@ -2,8 +2,11 @@ package com.njupt.dzyh.service;
 
 
 import com.njupt.dzyh.domain.Goods;
+import com.njupt.dzyh.domain.dto.GenerateExcel;
 import com.njupt.dzyh.utils.CommonResult;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +25,9 @@ public interface GoodsService {
 
     CommonResult updateBatch(List<Goods> goodsList);
 
-    List<Goods> selectByConditions(Map<String, Object> map);
+    CommonResult selectByConditions(Map<String, Object> map);
 
-    CommonResult selectByPage(int current,int size);
+    CommonResult selectByPage(int current,int size,Map<String,Object> conditionsMap);
+
+    CommonResult generateExcel(GenerateExcel generateExcel) throws IOException, ParseException;
 }

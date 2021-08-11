@@ -53,6 +53,28 @@ public class DateCommonUtil {
     public static final String USER_JOIN_CNT = "USER_JOIN_CNT";
 
 
+
+    /****
+     * 传入具体日期 ，返回具体日期增加一个月。  yyyy-MM-dd HH:mm:ss
+     * @param date
+     * @return
+     * @throws ParseException
+     */
+    public static Date subMonth(Date date,int n) {
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.DATEFORMAT.DATETIME_FORMAT);
+        Calendar rightNow = Calendar.getInstance();
+        rightNow.setTime(date);
+        rightNow.add(Calendar.MONTH, n);
+        Date dt1 = rightNow.getTime();
+        return dt1;
+    }
+
+
+
+
+
+
+
     /**
      * 获取今年是哪一年. 〈一句话功能简述〉 〈功能详细描述〉
      *
@@ -264,14 +286,18 @@ public class DateCommonUtil {
 //    }
 
     /**
-     * 〈获取当天时间以yyyyMMdd格式返回字符串〉 〈获取当天时间以yyyyMMdd格式返回字符串〉
+     * 〈获取当天时间以yyyyMMddHHmmss格式返回字符串〉 〈获取当天时间以yyyyMMdd格式返回字符串〉
      *
      * @return 当天时间
      */
     public static String getCurCurrentDateStr() {
-        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.DATEFORMAT.DATE_FORMAT);
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.DATEFORMAT.TIMESTAMP_FORMAT);
         String nowDate = sdf.format(getCurrentDate());
         return nowDate;
+    }
+
+    public static Date getCurCurrentDateStrToDate() throws ParseException {
+        return new SimpleDateFormat(CommonConst.DATEFORMAT.TIMESTAMP_FORMAT).parse(getCurCurrentDateStr());
     }
 
     /**

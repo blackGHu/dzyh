@@ -94,14 +94,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
-            <version>${druid_version}</version>
         </dependency>
 
         <!-- mp配置-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>${mybatisplus_version}</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>com.baomidou</groupId>-->

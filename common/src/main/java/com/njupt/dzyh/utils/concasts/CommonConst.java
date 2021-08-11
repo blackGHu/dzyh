@@ -63,7 +63,7 @@ public class CommonConst {
         /**
          * DATE_FORMAT.
          */
-        public static final String DATE_FORMAT = "yyMMdd";
+        public static final String DATE_FORMAT = "yyyyMMdd";
 
         /**
          * MINUTE_FORMAT.

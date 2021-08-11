@@ -1,0 +1,16 @@
+server:
+  port: 8090
+
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_dzyh?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+dbNames: db_dzyh
+dbFilePath: D:\\xsc_work\\低值易耗品管理系统\\db
+hostIp: 127.0.0.1
+resource: D:\\xsc_work\\低值易耗品管理系统\\file

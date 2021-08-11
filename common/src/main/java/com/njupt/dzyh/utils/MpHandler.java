@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -18,8 +19,8 @@ public class MpHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         log.info("start insert fill ....");
-        this.setFieldValByName("createTime",new Date(),metaObject);
-        this.setFieldValByName("updateTime",new Date(),metaObject);
+            this.setFieldValByName("createTime",new Date(),metaObject);
+            this.setFieldValByName("updateTime",new Date(),metaObject);
         this.setFieldValByName("version",1,metaObject);
         this.setFieldValByName("deleted",0,metaObject);
     }

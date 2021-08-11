@@ -17,8 +17,10 @@ import java.util.List;
  */
 public interface InformationService {
 
+    int getItem(Goods goods);
+
     CommonResult add(Goods goods);
     CommonResult subtract(Goods goods);
-    CommonResult selectByCondition(Information con);
-    CommonResult selectAllInfoByPage(int current,int size);
+    CommonResult selectByCondition(Information con, int current, int size);
+    CommonResult selectAllInfoByPage(int current, int size);
 }

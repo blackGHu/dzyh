@@ -3,6 +3,7 @@ package com.njupt.dzyh.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.njupt.dzyh.domain.Goods;
+import com.njupt.dzyh.domain.dto.GenerateExcel;
 import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.GoodsService;
 import com.njupt.dzyh.service.InformationService;
@@ -15,7 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 一句话功能描述.
@@ -55,8 +60,9 @@ public class GoodsController {
      */
     @RequestMapping("/selectAllByPage/{current}/{size}")
     public CommonResult selectAllByPage(@PathVariable("current") int current,
-                                        @PathVariable("size") int size){
-       return goodsService.selectByPage(current,size);
+                                        @PathVariable("size") int size,
+                                        @RequestBody(required = false) Map<String,Object> conditionsMap){
+       return goodsService.selectByPage(current,size,conditionsMap);
 
     }
 
@@ -71,41 +77,90 @@ public class GoodsController {
     }
 
 
+    @RequestMapping("/selectByConditions")
+    public CommonResult selectByConditions(@RequestBody(required = false) Map<String,Object> conditionsMap){
+        return goodsService.selectByConditions(conditionsMap);
+    }
+
+
 
 //     ---------插入操作--------------
     /**
-     * 物品信息的录入
+     * 单个——物品信息的录入
      * @param goods
      * @return
      */
     @RequestMapping("/insert")
     public CommonResult insert(@RequestBody Goods goods){
-        informationService.add(goods);
+
         return goodsService.insert(goods);
     }
 
     /**
-     * 批量插入  传入的是Excel还是Json格式的goodsList
+     * 批量——物品信息录入  传入的是Excel还是Json格式的goodsList
      * @param goodsList
      * @return
      */
     @RequestMapping("/insertBatchByList")
     public CommonResult insertBatch(@RequestBody List<Goods> goodsList){
         System.out.println("goodsList---\t" + goodsList);
+        for(Goods goods:goodsList){
+            CommonResult result = informationService.add(goods);
+            if(!result.getResultCode().equals(CommonResultEm.SUCCESS.getEcode()))
+                return result;
+        }
         return goodsService.insertBatch(goodsList);
     }
 
+    /**
+     * 批量——物品信息录入  传入的是Excel还是Json格式的goodsList
+     * 该为 正式版功能，最后调用该接口，但是不好测试，需要等前台联调
+     * 暂用下方url方式测试
+     * @param file
+     * @return
+     */
     @RequestMapping("/insertBatchByFile")
     public CommonResult insertBatch(@RequestParam("file") MultipartFile file){
         CommonResult result = new CommonResult();
         try {
             //1. 先转换成json格式
-            JSONObject goodsJsonObj = CommonUtil.excelToJson(file);
-            List<Goods> goodsList = JSONArray.parseArray(goodsJsonObj.toJSONString(),Goods.class);
-            goodsService.insertBatch(goodsList);
-            result.setResultCode(CommonResultEm.SUCCESS.getEcode());
-            result.setResultMessage(CommonResultEm.SUCCESS.getEmsg());
-
+            String fileName = file.getOriginalFilename();
+            if(fileName.endsWith(".xls") || fileName.endsWith((".xlsx"))){
+                JSONObject goodsJsonObj = CommonUtil.excelToJson(file);
+                System.out.println("goodsJsonObj---\t" + goodsJsonObj.toJSONString());
+                String key = "";
+                if(goodsJsonObj.size()>1){
+                    return  CommonResult.error(CommonResultEm.ERROR,"表格有多个子表，无法对应对象，Excel转换失败");
+                }
+                for(Map.Entry<String, Object> entry:goodsJsonObj.entrySet()){
+                    key = entry.getKey();
+                    System.out.println("key" + key);
+                }
+                List<Goods> goodsList = JSONArray
+                        .parseArray(JSONArray.toJSONString(goodsJsonObj.get(key))).toJavaList(Goods.class);
+                System.out.println("goodsList---\t" + goodsList);
+//                CommonResult rec = goodsService.insertBatch(goodsList);
+                List<Goods> errorList = new ArrayList<>();
+                if (0 == goodsList.size() || null == goodsList) {
+                    return CommonResult.error();
+                } else {
+                    for (Goods goods : goodsList) {
+                        CommonResult rec = goodsService.insert(goods);
+                        if(!rec.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
+                            errorList.add(goods);
+                            continue;
+                        }
+                    }
+                    if (0 == errorList.size())
+                        return CommonResult.success();
+                    else
+                        return CommonResult.error(CommonResultEm.ERROR, "失败的列表：" + errorList);
+                }
+//                    Integer rec = goodsDao.insertBatchSomeColumn(goodsList);
+            }else{
+                result.setResultCode(CommonResultEm.ERROR.getEcode());
+                result.setResultMessage("文件格式不对【只接收xls、xlsx格式的文件】");
+            }
         } catch (Exception e) {
             result.setResultCode(CommonResultEm.ERROR.getEcode());
             result.setResultMessage("Excel读取失败");
@@ -113,21 +168,52 @@ public class GoodsController {
         return result;
     }
 
+    /**
+     * 批量——物品信息录入  传入的是Excel还是Json格式的goodsList
+     * 测试版——url测试批量录入
+     * @param url
+     * @return
+     */
     @RequestMapping("/insertBatchByUrl")
-//    @RequestParam("url") String url
-    public CommonResult insertBatch(String url){
+    public CommonResult insertBatch(@Param("url") String url){
         CommonResult result = new CommonResult();
         try {
             //1. 先转换成json格式
             JSONObject goodsJsonObj = CommonUtil
                     .excelToJson(url);
             System.out.println("goodsJsonObj---\t" + goodsJsonObj.toJSONString());
+            //  即表格中只允许只有一个sheet
+            String key = "";
+            if(goodsJsonObj.size()>1){
+                return  CommonResult.error(CommonResultEm.ERROR,"表格有多个子表，无法对应对象，Excel转换失败");
+            }
+            for(Map.Entry<String, Object> entry:goodsJsonObj.entrySet()){
+                key = entry.getKey();
+                System.out.println("key" + key);
+            }
             List<Goods> goodsList = JSONArray
-                    .parseArray(JSONArray.toJSONString(goodsJsonObj.get("Sheet1"))).toJavaList(Goods.class);
+                    .parseArray(JSONArray.toJSONString(goodsJsonObj.get(key))).toJavaList(Goods.class);
             System.out.println("goodsList---\t" + goodsList);
-            CommonResult rec = goodsService.insertBatch(goodsList);
-            result.setResultCode(rec.getResultCode());
-            result.setResultMessage(rec.getResultMessage());
+//            CommonResult rec = goodsService.insertBatch(goodsList);
+            List<Goods> errorList = new ArrayList<>();
+            if (0 == goodsList.size() || null == goodsList) {
+                return CommonResult.error();
+            } else {
+                for (Goods goods : goodsList) {
+                    CommonResult rec = goodsService.insert(goods);
+                    if(!rec.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
+                        errorList.add(goods);
+                        continue;
+                    }
+                }
+                if (0 == errorList.size())
+                    return CommonResult.success();
+                else
+                    return CommonResult.error(CommonResultEm.ERROR, "失败的列表：" + errorList);
+            }
+//                    Integer rec = goodsDao.insertBatchSomeColumn(goodsList);
+//            result.setResultCode(rec.getResultCode());
+//            result.setResultMessage(rec.getResultMessage());
 
         } catch (Exception e) {
             result.setResultCode(CommonResultEm.ERROR.getEcode());
@@ -139,14 +225,33 @@ public class GoodsController {
 
 //     ---------删除操作--------------
     /**
-     * 根据ID删除物品
+     * 根据ID删除录入物品表的信息
+     * 对于超管可以进行删除操作，如果原先是通过的 删除后要回加
      * @param goodsId
      * @return
      */
-    @RequestMapping("/deleteById")
-    public CommonResult deleteById(@Param("goodsId") int goodsId){
-        return goodsService.deletById(goodsId);
+    @RequestMapping("/deleteByGoodsId")
+    public CommonResult deleteByGoodsId(@Param("goodsId") int goodsId){
+        Goods goods = JSONObject.parseObject(JSONObject.toJSONString(goodsService.selectById(goodsId).getObj()),Goods.class);
+        System.out.println("hahahha-----------"+goods);
+        CommonResult tempResult1 = goodsService.deletById(goodsId);
+        CommonResult result = new CommonResult();
+        if(tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
+            CommonResult tempResult2 = informationService.add(goods);
+            if(tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
+                result.setResultCode(tempResult1.getResultCode());
+                result.setResultMessage(tempResult1.getResultMessage());
+            }else {
+                return tempResult2;
+            }
+        }else {
+            return tempResult1;
+        }
+        return result;
     }
+
+
+
 
 
 
@@ -167,4 +272,18 @@ public class GoodsController {
     public CommonResult updateBatch(@RequestBody List<Goods> goodsList){
         return goodsService.updateBatch(goodsList);
     }
+
+
+
+
+
+//     ---------导出报表--------------
+    @RequestMapping("/generateExcel")
+    public CommonResult generateExcel(@RequestBody GenerateExcel generateExcel) throws IOException, ParseException {
+        return goodsService.generateExcel(generateExcel);
+    }
+
+
+
+
 }

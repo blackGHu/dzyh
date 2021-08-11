@@ -6,6 +6,8 @@
     <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/goodsManagement" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/goodsManagement/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/informationCheck" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/informationCheck/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shiroManager" charset="UTF-8" />
   </component>
 </project>
