@@ -11,6 +11,6 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
 
 dbNames: db_dzyh
-dbFilePath: D:\\xsc_work\\低值易耗品管理系统\\db
+dbFilePath: C:\\Users\\Administrator\\Desktop\\file\\db
 hostIp: 127.0.0.1
-resource: D:\\xsc_work\\低值易耗品管理系统\\file
+resource: C:\\Users\\Administrator\\Desktop\\file

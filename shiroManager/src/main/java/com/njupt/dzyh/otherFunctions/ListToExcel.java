@@ -14,10 +14,10 @@ import java.util.Map;
 
 public class ListToExcel {
     //User对象写入excel
-    public static void userToExcel(String resource, List<User> users) throws IOException {
+    public static void userToExcel(String resource, String fileName,List<User> users) throws IOException {
         //exportFilePath：D:/测试
         //定义表头
-        String[] title = {"用户类型","账号","姓名","手机"};
+        String[] title = {"用户类型(游客，教师，学生，管理员，超级管理员)","账号","姓名","手机"};
         //创建excel工作簿
         XSSFWorkbook workbook = new XSSFWorkbook();
         //创建工作表sheet
@@ -32,24 +32,27 @@ public class ListToExcel {
         }
 
         //写入数据
-        for (int i = 0; i < users.size(); i++){
-            XSSFRow nrow = sheet.createRow(i+1);
-            XSSFCell ncell = nrow.createCell(0);
-            Map<Integer,String> roleNames = users.get(i).getRoleNames();
-            String roleName="";
-            for(int k : roleNames.keySet())
-                roleName += roleNames.get(k)+",";
-            ncell.setCellValue(roleName);
-            ncell = nrow.createCell(1);
-            ncell.setCellValue(users.get(i).getUserId());
-            ncell = nrow.createCell(2);
-            ncell.setCellValue(users.get(i).getUserName());
-            ncell = nrow.createCell(3);
-            ncell.setCellValue(users.get(i).getUserPhone());
+        if(users!=null){
+            for (int i = 0; i < users.size(); i++){
+                XSSFRow nrow = sheet.createRow(i+1);
+                XSSFCell ncell = nrow.createCell(0);
+                Map<Integer,String> roleNames = users.get(i).getRoleNames();
+                String roleName="";
+                for(int k : roleNames.keySet())
+                    roleName += roleNames.get(k)+",";
+                ncell.setCellValue(roleName);
+                ncell = nrow.createCell(1);
+                ncell.setCellValue(users.get(i).getUserId());
+                ncell = nrow.createCell(2);
+                ncell.setCellValue(users.get(i).getUserName());
+                ncell = nrow.createCell(3);
+                ncell.setCellValue(users.get(i).getUserPhone());
+            }
         }
+
         //创建excel文件
 
-        File file = new File(resource,"user.xlsx");
+        File file = new File(resource,fileName);
 
 
         try {
@@ -93,19 +96,22 @@ public class ListToExcel {
         registNames.put(0,"待审批");
         registNames.put(1,"通过");
         //写入数据
-        for (int i = 0; i < usersInfo.size(); i++){
-            XSSFRow nrow = sheet.createRow(i+1);
-            XSSFCell ncell = nrow.createCell(0);
-            ncell.setCellValue(roleNames.get(usersInfo.get(i).getRoleId()));
-            ncell = nrow.createCell(1);
-            ncell.setCellValue(usersInfo.get(i).getUserId());
-            ncell = nrow.createCell(2);
-            ncell.setCellValue(usersInfo.get(i).getUserName());
-            ncell = nrow.createCell(3);
-            ncell.setCellValue(usersInfo.get(i).getUserPhone());
-            ncell = nrow.createCell(4);
-            ncell.setCellValue(registNames.get(usersInfo.get(i).getRegistStatus()));
+        if(usersInfo!=null){
+            for (int i = 0; i < usersInfo.size(); i++){
+                XSSFRow nrow = sheet.createRow(i+1);
+                XSSFCell ncell = nrow.createCell(0);
+                ncell.setCellValue(roleNames.get(usersInfo.get(i).getRoleId()));
+                ncell = nrow.createCell(1);
+                ncell.setCellValue(usersInfo.get(i).getUserId());
+                ncell = nrow.createCell(2);
+                ncell.setCellValue(usersInfo.get(i).getUserName());
+                ncell = nrow.createCell(3);
+                ncell.setCellValue(usersInfo.get(i).getUserPhone());
+                ncell = nrow.createCell(4);
+                ncell.setCellValue(registNames.get(usersInfo.get(i).getRegistStatus()));
+            }
         }
+
         //创建excel文件
 
         File file = new File(resource,"userInfo.xlsx");

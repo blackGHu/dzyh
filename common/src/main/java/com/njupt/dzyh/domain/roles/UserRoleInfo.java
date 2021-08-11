@@ -1,5 +1,6 @@
 package com.njupt.dzyh.domain.roles;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,9 +23,11 @@ public class UserRoleInfo {
     private int roleId;
 
     @TableField(fill = FieldFill.INSERT)
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)

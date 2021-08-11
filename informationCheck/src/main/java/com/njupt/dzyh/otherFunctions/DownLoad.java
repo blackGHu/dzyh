@@ -10,7 +10,7 @@ public class DownLoad {
         // 如果文件名不为空，则进行下载
         if (fileName != null) {
             //设置文件路径
-            String realPath = "";
+           // String realPath = "";
 
             //File file = new File(realPath, fileName);
           /*  ClassPathResource classPathResource = new ClassPathResource(fileName);

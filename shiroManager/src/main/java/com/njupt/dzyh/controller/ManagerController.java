@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequiresRoles("管理员")
+//@RequiresRoles("管理员")
 @RequestMapping("dzyh/manager")
 
 public class ManagerController {
@@ -47,7 +47,7 @@ public class ManagerController {
     private UserInfoServiceImpl userInfoService;
 
     //查询用户、角色信息
-    @RequiresPermissions("getUserByCondition")
+    //@RequiresPermissions("getUserByCondition")
     @RequestMapping("/getUserByCondition/{current}/{size}")
     public CommonResult getUserByCondition(@RequestBody User user, @PathVariable("current") int current,@PathVariable("size") int pageSize){
         //用户类型存在currentRole中，数值1,2,3,4,5
@@ -76,7 +76,7 @@ public class ManagerController {
     public void exportUser(@RequestBody User user, HttpServletRequest request,HttpServletResponse response) throws IOException {
         //用户类型存在currentRole中，数值0,1,2,3,4
         Set<String> userIds = userRoleService.getByCondition(user);
-        if(userIds.size()==0) return ;
+        if(userIds==null) return ;
         List<User> result = new ArrayList<>();
         System.out.println("1111");
         for(String userId : userIds){
@@ -88,11 +88,10 @@ public class ManagerController {
         }
         if(result.size()==0) return ;
         System.out.println("22222");
-
-        ListToExcel.userToExcel(resource,result);
-
-
         String fileName= "user.xlsx";
+
+        ListToExcel.userToExcel(resource,fileName,result);
+
 
         DownLoad.downloadFile(resource,fileName,request,response);
 
@@ -201,8 +200,10 @@ public class ManagerController {
 
     //获取注册表模板
     @RequestMapping("/getRegistTemp")
-    public void getRegistTemp(HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException {
+    public void getRegistTemp(HttpServletRequest request,HttpServletResponse response) throws IOException {
         String fileName= "registerTemplate.xlsx";
+
+        ListToExcel.userToExcel(resource,fileName,null);
         //System.out.println(resource);
         DownLoad.downloadFile(resource,fileName,request,response);
     }

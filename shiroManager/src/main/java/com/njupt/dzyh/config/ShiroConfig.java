@@ -46,11 +46,14 @@ public class ShiroConfig {
 
 
         Map<String,String> filterMap = new HashMap<>();
-
+/*
         filterMap.put("/logout","logout");
         filterMap.put("/dzyh/set/*","authc");
         filterMap.put("/dzyh/manager/*","authc");
         filterMap.put("/dzyh/super/*","authc");
+        */
+
+
         /*
         filterMap.put("/dzyh/set/*","authc,auth");
         filterMap.put("/dzyh/manager/*","authc,auth");

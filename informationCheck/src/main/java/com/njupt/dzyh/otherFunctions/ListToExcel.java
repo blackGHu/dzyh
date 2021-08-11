@@ -16,7 +16,7 @@ public class ListToExcel {
     public static void underStockToExcel(String resource, List<UnderStock> underStocks) throws IOException {
         //exportFilePath：D:/测试
         //定义表头
-        String[] title = {"名称","规格","型号","数量","申请人","申请日期","阅读状态"};
+        String[] title = {"类别","名称","规格","型号","数量","申请人","申请日期","阅读状态"};
         //创建excel工作簿
         XSSFWorkbook workbook = new XSSFWorkbook();
         //创建工作表sheet
@@ -33,23 +33,23 @@ public class ListToExcel {
         //写入数据
         for (int i = 0; i < underStocks.size(); i++){
             XSSFRow nrow = sheet.createRow(i+1);
-/*          只能保存类别Id，所以未做更改
-            XSSFCell ncell = nrow.createCell(0);
-            ncell.setCellValue(underStocks.get(i).getUsType());*/
 
             XSSFCell ncell = nrow.createCell(0);
-            ncell.setCellValue(underStocks.get(i).getUsName());
+            ncell.setCellValue(underStocks.get(i).getUsType());
+
             ncell = nrow.createCell(1);
-            ncell.setCellValue(underStocks.get(i).getUsSize());
-            ncell = nrow.createCell(2);
-            ncell.setCellValue(underStocks.get(i).getUsModel());
-            ncell = nrow.createCell(3);
-            ncell.setCellValue(underStocks.get(i).getUsNumbers());
-            ncell = nrow.createCell(4);
             ncell.setCellValue(underStocks.get(i).getUsName());
+            ncell = nrow.createCell(2);
+            ncell.setCellValue(underStocks.get(i).getUsSize());
+            ncell = nrow.createCell(3);
+            ncell.setCellValue(underStocks.get(i).getUsModel());
+            ncell = nrow.createCell(4);
+            ncell.setCellValue(underStocks.get(i).getUsNumbers());
             ncell = nrow.createCell(5);
-            ncell.setCellValue(underStocks.get(i).getCreateTime().toString());
+            ncell.setCellValue(underStocks.get(i).getUserName());
             ncell = nrow.createCell(6);
+            ncell.setCellValue(underStocks.get(i).getCreateTime().toString());
+            ncell = nrow.createCell(7);
             String readStatus="已读";
             if(underStocks.get(i).getReadStatus()==0)
                 readStatus = "未读";
