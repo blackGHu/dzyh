@@ -86,6 +86,8 @@ public class SettingController {
         Subject currentUser = SecurityUtils.getSubject();
         User temp = (User) currentUser.getPrincipal();
         if(!userInfo.getUserId().equals(temp.getUserId())  || !userInfo.getUserPassword().equals(temp.getUserPassword())){
+            System.out.println(userInfo);
+            System.out.println("密码错误");
             return CommonResult.error(CommonResultEm.ERROR,"密码错误");
         }
         int rec = userInfoService.changePassword(userInfo);

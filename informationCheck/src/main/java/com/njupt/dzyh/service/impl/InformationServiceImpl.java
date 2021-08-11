@@ -28,6 +28,22 @@ public class InformationServiceImpl implements InformationService {
     private InformationDao informationDao;
 
     @Override
+    public int getItem(Goods goods) {
+        String model = goods.getGoodsModel();
+        int number = goods.getGoodsNumbers();
+        String size = goods.getGoodsSize();
+
+        QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("repertory_model",model)
+                .eq("repertory_size",size);
+        Information temp = informationDao.selectOne(queryWrapper);
+        if(temp==null){
+            return 0;
+        }
+        return temp.getRepertoryNumbers();
+    }
+
+    @Override
     public CommonResult add(Goods goods) {
         String model = goods.getGoodsModel();
         int number = goods.getGoodsNumbers();
@@ -59,6 +75,8 @@ public class InformationServiceImpl implements InformationService {
             return CommonResult.success(model+"插入成功");
         }
     }
+
+
 
     @Override
     public CommonResult subtract(Goods goods) {
