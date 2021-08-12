@@ -11,6 +11,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
 
 dbNames: db_dzyh
-dbFilePath: C:\\Users\\Administrator\\Desktop\\file\\db
+dbFilePath: C:\\Users\\Administrator\\Desktop\\file\\db\\
 hostIp: 127.0.0.1
-resource: C:\\Users\\Administrator\\Desktop\\file
+resource: C:\\Users\\Administrator\\Desktop\\file\\
+#路径最后的双斜杠一定不能丢

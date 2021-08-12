@@ -12,9 +12,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class ListToExcel {
+public class ListToExcelInfo {
     public static void underStockToExcel(String resource, List<UnderStock> underStocks) throws IOException {
         //exportFilePath：D:/测试
+        System.out.println("hhhh");
         //定义表头
         String[] title = {"类别","名称","规格","型号","数量","申请人","申请日期","阅读状态"};
         //创建excel工作簿
@@ -25,11 +26,12 @@ public class ListToExcel {
         XSSFRow row = sheet.createRow(0);
         XSSFCell cell = null;
         //插入第一行数据的表头
+
         for(int i = 0; i < title.length; i++){
             cell = row.createCell(i);
             cell.setCellValue(title[i]);
         }
-
+        System.out.println("here");
         //写入数据
         for (int i = 0; i < underStocks.size(); i++){
             XSSFRow nrow = sheet.createRow(i+1);

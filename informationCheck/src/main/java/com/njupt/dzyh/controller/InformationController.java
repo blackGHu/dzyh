@@ -8,7 +8,8 @@ import com.njupt.dzyh.domain.UnderStock;
 import com.njupt.dzyh.enums.CommonResultEm;
 
 import com.njupt.dzyh.otherFunctions.DownLoad;
-import com.njupt.dzyh.otherFunctions.ListToExcel;
+
+import com.njupt.dzyh.otherFunctions.ListToExcelInfo;
 import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.service.UnderStockService;
 import com.njupt.dzyh.utils.CommonResult;
@@ -166,7 +167,7 @@ public class InformationController {
     public void underStockFile(@RequestBody UnderStock underStock, HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<UnderStock> list = underStockService.getByCondition(underStock);
         if(list!=null){
-            ListToExcel.underStockToExcel(resource,list);
+            ListToExcelInfo.underStockToExcel(resource,list);
             DownLoad.downloadFile(resource,"underStock.xlsx",request,response);
         }
 
@@ -176,7 +177,7 @@ public class InformationController {
     public CommonResult deleteUnderStock(@RequestBody UnderStock underStock){
         int rec = underStockService.delete(underStock);
         if(rec == 1){
-            return CommonResult.error(CommonResultEm.ERROR,"用户不存在");
+            return CommonResult.error(CommonResultEm.ERROR,"记录不存在");
         }
         else if(rec==-1)
             return CommonResult.error(CommonResultEm.ERROR,"删除失败");

@@ -148,7 +148,7 @@ public class ManagerController {
     //查看用户申请
     @RequestMapping("/getUserInfoByCondition/{current}/{size}")
     public CommonResult getUserInfoByCondition(@RequestBody UserInfo userInfo, @PathVariable("current") int current,@PathVariable("size") int pageSize){
-        SelectResult selectResult  = userInfoService.selectByCondition(userInfo,current,pageSize+1);
+        SelectResult selectResult  = userInfoService.selectByCondition(userInfo,current,pageSize);
         List<UserInfo> userInfos = (List<UserInfo>) selectResult.getList();
 
         if(userInfos==null) return CommonResult.error(CommonResultEm.ERROR,"未查询到用户");
@@ -204,8 +204,9 @@ public class ManagerController {
         String fileName = "registUsers.xlsx";
         List<UserInfo> userInfos = ExcelToList.excelToUserInfo(resource,fileName);
 
+        return batchRegister();
 
-        return CommonResult.success(userInfos);
+        //return CommonResult.success(userInfos);
     }
 
     //获取注册表模板

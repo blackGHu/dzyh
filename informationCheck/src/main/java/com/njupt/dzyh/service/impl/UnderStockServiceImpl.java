@@ -138,12 +138,15 @@ public class UnderStockServiceImpl implements UnderStockService {
 
     @Override
     public int delete(UnderStock underStock) {
+        /*
         QueryWrapper<UnderStock> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("us_size",underStock.getUsSize())
                 .eq("us_model",underStock.getUsModel());
-        List<UnderStock> list = underStockDao.selectList(queryWrapper);
-        if(list.size()==0) return 1;
-        UnderStock temp = list.get(0);
+        List<UnderStock> list = underStockDao.selectList(queryWrapper);*/
+
+
+        UnderStock temp = underStockDao.selectById(underStock.getUsId());
+        if(temp==null) return 1;
         int rec = underStockDao.deleteById(temp.getUsId());
         if(rec==0) return -1;
         return 0;
