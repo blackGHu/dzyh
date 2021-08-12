@@ -52,14 +52,18 @@ public class ManagerController {
     public CommonResult getUserByCondition(@RequestBody User user, @PathVariable("current") int current,@PathVariable("size") int pageSize){
         //用户类型存在currentRole中，数值1,2,3,4,5
         System.out.println("11111");
-        SelectResult selectResult = userRoleService.getByCondition(user,current,pageSize+1);
-        Set<String> userIds = (Set<String>) selectResult.getList();
+        //SelectResult selectResult = userRoleService.getByCondition(user,current,pageSize+1);
+        //Set<String> userIds = (Set<String>) selectResult.getList();
+        Set<String> userIds = userRoleService.getByCondition(user);
         System.out.println("11111");
         if(userIds.size()==0) return CommonResult.error(CommonResultEm.ERROR,"未查询到结果");
         List<User> result = new ArrayList<>();
-
-        for(String userId : userIds){
-
+        int start = (current-1)*pageSize;
+        if(start>userIds.size()-1) return CommonResult.error(CommonResultEm.ERROR,"页码超出范围");
+        int end = Math.min(current*pageSize,userIds.size());
+        List<String> ids = new ArrayList<>(userIds);
+        for(int i=start;i<end;i++){
+            String userId = ids.get(i);
             User temp = userService.getUserById(userId);
             if(temp==null) continue;
             temp.setRoles(null);
@@ -67,7 +71,7 @@ public class ManagerController {
             result.add(temp);
         }
         if(result.size()==0) return CommonResult.error(CommonResultEm.ERROR,"未查询到结果");
-        return CommonResult.success(new SelectResult(selectResult.getTotal(),result));
+        return CommonResult.success(new SelectResult((long) userIds.size(),result));
     }
 
     //下载用户 角色文件
@@ -104,6 +108,12 @@ public class ManagerController {
         userInfo.setUserId(updateUser.getUserId());
         userInfo.setUserName(updateUser.getUserName());
         userInfo.setUserPhone(updateUser.getUserPhone());
+        int[] roleIds = updateUser.getRoleIds();
+        if(roleIds.length>0)
+        userInfo.setRoleId(roleIds[0]);
+
+        userRoleService.deleteByUserId(updateUser.getUserId());
+
         int recUser = userInfoService.upDateUser(userInfo);
         if(recUser==-1) return CommonResult.error(CommonResultEm.ERROR,"个人信息更新失败");
         int recRole = userRoleService.insert(updateUser.getUserId(), updateUser.getRoleIds());

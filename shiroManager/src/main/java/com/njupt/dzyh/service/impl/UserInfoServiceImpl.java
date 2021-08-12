@@ -196,7 +196,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
                     .eq("regist_status",registStatus);
         }
-
+       // queryWrapper.eq("deleted",0);
         Page<UserInfo> page = new Page<>(current,size);
         userDao.selectPage(page,queryWrapper);
         List<UserInfo> records = page.getRecords();
