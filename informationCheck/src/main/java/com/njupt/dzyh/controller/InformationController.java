@@ -103,7 +103,7 @@ public class InformationController {
     @RequestMapping("/selectByCondition/{current}/{size}")
     public CommonResult selectByCondition(@PathVariable("current") int current,@PathVariable("size") int pageSize,@RequestBody Information con){
 
-        return informationService.selectByCondition(con,current,pageSize+1);
+        return informationService.selectByCondition(con,current,pageSize);
     }
 
     /**
@@ -113,7 +113,7 @@ public class InformationController {
     @RequestMapping("/selectByPage/{current}/{size}")
     public CommonResult selectByPage(@PathVariable("current") int current,@PathVariable("size") int pageSize) {
 
-        return informationService.selectAllInfoByPage(current, pageSize+1);
+        return informationService.selectAllInfoByPage(current, pageSize);
     }
 
 
@@ -123,7 +123,7 @@ public class InformationController {
      */
     @RequestMapping("/getUnderStockByCondition/{current}/{size}")
     public CommonResult getUnderStockByCondition(@RequestBody UnderStock underStock,@PathVariable("current") int current,@PathVariable("size") int pageSize) {
-        SelectResult selectResult = underStockService.getByCondition(underStock,current,pageSize+1);
+        SelectResult selectResult = underStockService.getByCondition(underStock,current,pageSize);
         List<UnderStock> list = (List<UnderStock>) selectResult.getList();
         if(list.size()>0)
             return CommonResult.success(new SelectResult(selectResult.getTotal(),list));
