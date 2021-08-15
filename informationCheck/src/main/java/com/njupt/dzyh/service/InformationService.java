@@ -19,6 +19,8 @@ public interface InformationService {
 
     int getItem(Goods goods);
 
+    Information getInfomation(Goods goods);
+
     CommonResult add(Goods goods);
     CommonResult subtract(Goods goods);
     CommonResult selectByCondition(Information con, int current, int size);

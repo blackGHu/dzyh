@@ -40,6 +40,10 @@ public class Information implements Serializable {
 
     private String repertoryAddress;
 
+    private String repertoryUse;
+
+    private String repertoryAutho;
+
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Version
     private Integer version;

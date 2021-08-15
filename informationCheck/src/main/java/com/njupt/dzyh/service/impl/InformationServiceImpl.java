@@ -30,7 +30,6 @@ public class InformationServiceImpl implements InformationService {
     @Override
     public int getItem(Goods goods) {
         String model = goods.getGoodsModel();
-        int number = goods.getGoodsNumbers();
         String size = goods.getGoodsSize();
 
         QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
@@ -41,6 +40,18 @@ public class InformationServiceImpl implements InformationService {
             return 0;
         }
         return temp.getRepertoryNumbers();
+    }
+
+    @Override
+    public Information getInfomation(Goods goods) {
+        String model = goods.getGoodsModel();
+        String size = goods.getGoodsSize();
+
+        QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("repertory_model",model)
+                .eq("repertory_size",size);
+        Information temp = informationDao.selectOne(queryWrapper);
+        return temp;
     }
 
     @Override
@@ -58,6 +69,10 @@ public class InformationServiceImpl implements InformationService {
             temp.setRepertoryNumbers(temp.getRepertoryNumbers()+number);
             if(goods.getGoodsAddress().length()>0)
                 temp.setRepertoryAddress(goods.getGoodsAddress());
+            if(goods.getPurposeName().length()>0)
+                temp.setRepertoryUse(goods.getPurposeName());
+            if(goods.getRoleName().length()>0)
+                temp.setRepertoryAutho(goods.getRoleName());
             informationDao.update(temp,queryWrapper);
             return CommonResult.success(model+"入库成功");
         }
@@ -67,6 +82,8 @@ public class InformationServiceImpl implements InformationService {
             temp.setRepertorySize(goods.getGoodsSize());
             temp.setRepertoryModel(goods.getGoodsModel());
             temp.setRepertoryNumbers(goods.getGoodsNumbers());
+            temp.setRepertoryUse(goods.getPurposeName());
+            temp.setRepertoryAutho(goods.getRoleName());
             if(goods.getGoodsAddress().length()>0)
                 temp.setRepertoryAddress(goods.getGoodsAddress());
             else temp.setRepertoryAddress("存放地未知。");
