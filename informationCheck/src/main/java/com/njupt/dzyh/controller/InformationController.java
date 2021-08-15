@@ -53,14 +53,8 @@ public class InformationController {
      * 本段controller没用，仅做测试
      */
     @RequestMapping("/testAdd")
-    public CommonResult testAdd(@RequestParam("model") String model,@RequestParam("type") String type,@RequestParam("number") int number,@RequestParam("name") String name,@RequestParam("size") String size,@RequestParam("address") String address){
-        Goods goods = new Goods();
-        goods.setGoodsName(name)
-                .setGoodsSize(size)
-                .setGoodsModel(model)
-                .setGoodsNumbers(number)
-                .setGoodsAddress(address)
-                .setCategoryName(type);
+    public CommonResult testAdd(@RequestBody Goods goods){
+
         return informationService.add(goods);
     }
 
@@ -71,22 +65,7 @@ public class InformationController {
      * 本段controller没用，仅做测试
      */
     @RequestMapping("/testSub")
-    public CommonResult testSub(@RequestParam("model") String model,
-                                @RequestParam("type") String type,
-                                @RequestParam("number") int number,
-                                @RequestParam("name") String name,
-                                @RequestParam("size") String size,
-                                @RequestParam("userId") String userId,
-                                @RequestParam("address") String address){
-        Goods goods = new Goods();
-        String msg;
-        goods.setGoodsName(name)
-                .setGoodsSize(size)
-                .setGoodsModel(model)
-                .setGoodsNumbers(number)
-                .setBuyUserName(userId)
-                .setCategoryName(type)
-                .setGoodsAddress(address);
+    public CommonResult testSub(@RequestBody Goods goods){
 
         return informationService.subtract(goods);
     }
@@ -183,6 +162,31 @@ public class InformationController {
             return CommonResult.error(CommonResultEm.ERROR,"删除失败");
         else
             return CommonResult.success("删除成功");
+    }
+
+    @RequestMapping("/selectAllByCondition/{current}/{size}")
+    public CommonResult selectAllByCondition(@RequestBody Information information,@PathVariable("current") int current,@PathVariable("size") int pageSize){
+        return informationService.selectAllByCondition(information,current,pageSize);
+    }
+
+    @RequestMapping("/updateInformation")
+    public CommonResult updateInformation(@RequestBody Information information){
+        //根据id去查
+        return informationService.updateInformation(information);
+    }
+
+    @RequestMapping("/deleteInformationById")
+    public CommonResult deleteInformation(@RequestBody Information information){
+        return informationService.deleteInformationById(information);
+    }
+
+    @RequestMapping("/informationFile")
+    public void informationFile(@RequestBody Information information,HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<Information> list = informationService.selectAllByCondition(information);
+        if(list!=null){
+            ListToExcelInfo.informationToExcel(resource,list);
+            DownLoad.downloadFile(resource,"information.xlsx",request,response);
+        }
     }
 
 

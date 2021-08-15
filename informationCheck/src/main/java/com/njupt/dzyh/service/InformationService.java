@@ -21,8 +21,15 @@ public interface InformationService {
 
     Information getInfomation(Goods goods);
 
+    CommonResult updateInformation(Information information);
+
     CommonResult add(Goods goods);
     CommonResult subtract(Goods goods);
     CommonResult selectByCondition(Information con, int current, int size);
+    CommonResult selectAllByCondition(Information con, int current, int size);
+    List<Information> selectAllByCondition(Information information);
+
+
     CommonResult selectAllInfoByPage(int current, int size);
+    CommonResult deleteInformationById(Information information);
 }

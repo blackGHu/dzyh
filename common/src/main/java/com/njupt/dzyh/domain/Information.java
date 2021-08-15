@@ -1,5 +1,6 @@
 package com.njupt.dzyh.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 /**
@@ -43,6 +45,15 @@ public class Information implements Serializable {
     private String repertoryUse;
 
     private String repertoryAutho;
+
+    private Double repertoryPrice;
+
+    private String repertoryBuyname;
+
+    private String repertoryMessage;
+
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date storageTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Version
