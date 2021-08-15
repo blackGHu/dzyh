@@ -59,7 +59,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, Category> impl
      * @param categoryId
      * @return
      */
-    public CommonResult selectById(int categoryId) {
+    public CommonResult selectById(Integer categoryId) {
         Category category = categoryDao.selectById(categoryId);
         if(CommonUtil.isNull(category)){
             return CommonResult.error(CommonResultEm.ERROR);
@@ -137,7 +137,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, Category> impl
      * @param categoryId
      * @return
      */
-    public CommonResult deletById(int categoryId) {
+    public CommonResult deletById(Integer categoryId) {
         Category category = categoryDao.selectById(categoryId);
         if(CommonUtil.isNull(category)){
             return CommonResult.error(CommonResultEm.NOT_EXIST);

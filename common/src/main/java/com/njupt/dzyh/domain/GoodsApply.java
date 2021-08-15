@@ -51,11 +51,14 @@ public class GoodsApply implements Serializable {
     private String purposeName;
 
 
+
     // 申请人ID —— user_name
     private String applyUserName;
 
     // 审批人ID —— user_name
     private String approvalUserName;
+
+
 
 
     //申请审核状态   默认 -1 未申请 0 待审核 1 通过 2 拒绝

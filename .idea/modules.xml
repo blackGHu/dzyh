@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/dzyh.iml" filepath="$PROJECT_DIR$/.idea/dzyh.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dzyh_parent.iml" filepath="$PROJECT_DIR$/dzyh_parent.iml" />
       <module fileurl="file://$PROJECT_DIR$/goodsManagement/goodsManagement.iml" filepath="$PROJECT_DIR$/goodsManagement/goodsManagement.iml" />
       <module fileurl="file://$PROJECT_DIR$/informationCheck/informationCheck.iml" filepath="$PROJECT_DIR$/informationCheck/informationCheck.iml" />
       <module fileurl="file://$PROJECT_DIR$/shiroManager/shiroManager.iml" filepath="$PROJECT_DIR$/shiroManager/shiroManager.iml" />

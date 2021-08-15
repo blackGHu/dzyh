@@ -14,6 +14,7 @@ import com.njupt.dzyh.service.GoodsService;
 import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,7 +81,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
      * @return
      */
     public CommonResult selectByPage(int current,int size,Map<String,Object> conditionsMap) {
-        System.out.println("分页查询 begin");
+        System.out.println("xsc分页查询 begin");
         if(current<=0 || CommonUtil.isNull(current)){
             current = 1;
         }
@@ -89,9 +90,9 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
         }
         Page<Goods> page = new Page<>(current,size);
         QueryWrapper<Goods> wrapper = new QueryWrapper<>();
-        if(null == conditionsMap){
-            goodsDao.selectPage(page,null);
-        }else {
+//        if(null == conditionsMap){
+//            goodsDao.selectPage(page,null);
+//        }else {
             if(conditionsMap.containsKey("goodsName")){
                 wrapper.like("goods_name",conditionsMap.get("goodsName"));
                 conditionsMap.remove("goodsName");
@@ -108,23 +109,31 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
                 wrapper.like("buy_user_name",conditionsMap.get("buyUserName"));
                 conditionsMap.remove("buyUserName");
             }
+            if(conditionsMap.containsKey("roleName")){
+                wrapper.like("role_name",conditionsMap.get("roleName"));
+                conditionsMap.remove("roleName");
+            }
+            System.out.println("测试开始-----");
             for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
                 String key = entry.getKey();
+                System.out.println("key:" + key);
                 Object value = entry.getValue();
-                if (CommonUtil.isNotNull(value)) {
+                System.out.println("value :" + value);
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
                     wrapper.eq(CommonUtil.camel2Underline(key), value);
                 }
             }
+            System.out.println("测试结束-----");
             goodsDao.selectPage(page, wrapper);
-        }
+//        }
         List<Goods> goodsList = page.getRecords();
-        System.out.println("分页查询 end");
+        System.out.println("xsc分页查询 end");
         long total = page.getTotal();
 //        long current = page.getCurrent();
 //        long size = page.getSize();
         System.out.println(total + "--" + current + "--" + size);
         if(0 ==goodsList.size()){
-            return CommonResult.error();
+            return CommonResult.success();
         }
         return CommonResult.success(new GoodsPageDto(total,goodsList));
     }
@@ -158,17 +167,23 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
                 wrapper.like("buy_user_name", conditionsMap.get("buyUserName"));
                 conditionsMap.remove("buyUserName");
             }
+            if(conditionsMap.containsKey("roleName")){
+                wrapper.like("role_name",conditionsMap.get("roleName"));
+                conditionsMap.remove("roleName");
+            }
             for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
                 String key = entry.getKey();
+                System.out.println("key:" + key);
                 Object value = entry.getValue();
-                if (CommonUtil.isNotNull(value)) {
+                System.out.println("value :" + value);
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
                     wrapper.eq(CommonUtil.camel2Underline(key), value);
                 }
             }
             list = goodsDao.selectList(wrapper);
         }
             if(0 == list.size() || null == list){
-                return CommonResult.error();
+                return CommonResult.success();
             }else {
                 return CommonResult.success(list);
             }
@@ -192,6 +207,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
      * @return
      */
     public CommonResult insert(Goods goods) {
+        System.out.println("物品信息的录入 insert goods:" + goods);
         if(CommonUtil.isNull(goods)){
             return CommonResult.error();
 //        }else if(CommonUtil.isNotNull(goodsDao.selectById(goods.getGoodsId()))){
@@ -205,10 +221,11 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
                     .setGoodsPrice(goods.getGoodsPrice())
                     .setGoodsNumbers(goods.getGoodsNumbers())
                     .setCategoryName(goods.getCategoryName())
-                    .setRoleId(goods.getRoleId())
+                    .setRoleName(goods.getRoleName())
                     .setBuyUserName(goods.getBuyUserName())
                     .setGoodsAddress(goods.getGoodsAddress())
-                    .setPurposeName(goods.getPurposeName());
+                    .setPurposeName(goods.getPurposeName())
+                    .setStorageTime(goods.getStorageTime());
             int rec = goodsDao.insert(newGoods);
             if (rec == 1) {
                 CommonResult result = informationService.add(goods);
@@ -314,9 +331,10 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
                         .setGoodsPrice(goods.getGoodsPrice())
                         .setGoodsNumbers(goods.getGoodsNumbers())
                         .setBuyUserName(goods.getBuyUserName())
-                        .setRoleId(goods.getRoleId())
+                        .setRoleName(goods.getRoleName())
                         .setCategoryName(goods.getCategoryName())
-                        .setPurposeName(goods.getPurposeName());
+                        .setPurposeName(goods.getPurposeName())
+                        .setStorageTime(goods.getStorageTime());
                 int rec = goodsDao.updateById(newGoods);
                 if (rec == 1)
                     return CommonResult.success();

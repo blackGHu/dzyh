@@ -1,7 +1,9 @@
 package com.njupt.dzyh.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.GoodsApply;
 import com.njupt.dzyh.domain.dto.GenerateExcel;
@@ -12,6 +14,8 @@ import com.njupt.dzyh.service.GoodsApplyService;
 import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
+import com.njupt.dzyh.utils.ListToExcel;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +65,7 @@ public class GoodsApplyController {
     }
 
     /**
-     * 分页查询所有
+     * 管理员分页查询所有
      * @param current  当前页码         默认1
      * @param size     每页显示数量     默认4
      * @return
@@ -72,6 +76,21 @@ public class GoodsApplyController {
                                         @RequestBody(required = false) Map<String,Object> conditionsMap){
        return goodsApplyService.selectByPage(current,size,conditionsMap);
 
+    }
+
+
+
+    /**
+     * 教师学生分页查询所有
+     * @param current  当前页码         默认1
+     * @param size     每页显示数量     默认4
+     * @return
+     */
+    @RequestMapping("/selectPersonalByPage/{current}/{size}")
+    public CommonResult selectPersonalByPage(@PathVariable("current") int current,
+                                        @PathVariable("size") int size,
+                                        @RequestBody(required = false) Map<String,Object> conditionsMap) {
+        return goodsApplyService.selectPersonalByPage(current, size, conditionsMap);
     }
 
     /**
@@ -102,11 +121,11 @@ public class GoodsApplyController {
      */
     @RequestMapping("/deleteByGoodsApplyId")
     public CommonResult deleteByGoodsApplyId(@Param("orderId") int orderId){
+        GoodsApply goodsApply = JSONObject
+                .parseObject(JSONObject.toJSONString(goodsApplyService.selectById(orderId).getObj()),GoodsApply.class);
         CommonResult tempResult1 = goodsApplyService.deletById(orderId);
         CommonResult result = new CommonResult();
         if(tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
-            GoodsApply goodsApply = JSONObject
-                    .parseObject(JSONObject.toJSONString(goodsApplyService.selectById(orderId).getObj()),GoodsApply.class);
             if (goodsApply.getGoodsApprovalStatus() == 1) {
                 Goods goods = new Goods();
                 goods.setGoodsNumbers(goodsApply.getRepertoryNumbers())
@@ -155,15 +174,19 @@ public class GoodsApplyController {
 //     ---------导出报表--------------
     @RequestMapping("/generateExcel")
     public CommonResult generateExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
-                                      @Param("outUrl") String outUrl,
-                                      @Param("fileName") String fileName) throws IOException, ParseException {
+                                      @Param("fileName") String fileName,HttpServletRequest request,
+                                      HttpServletResponse response) throws IOException {
         Object obj = goodsApplyService.selectByConditions(conditionsMap).getObj();
         if(null == obj){
             return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
         }
         List<GoodsApply> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(GoodsApply.class);
-        GenerateGoodsApplyExcel generateGoodsApplyExcel = new GenerateGoodsApplyExcel(list,outUrl,fileName);
-        return goodsApplyService.generateExcel(generateGoodsApplyExcel);
+        ListToExcel.goodsApplyToExcel(resource,fileName,list);
+
+        DownLoad.downloadFile(resource,fileName,request,response);
+//        GenerateGoodsApplyExcel generateGoodsApplyExcel = new GenerateGoodsApplyExcel(list,outUrl,fileName);
+//        return goodsApplyService.generateExcel(generateGoodsApplyExcel);
+        return CommonResult.success();
     }
 
 //    ----------模板下载------------------
@@ -235,29 +258,38 @@ public class GoodsApplyController {
 
 
     /**
-     * 物品审批操作 （二次审批）   学生、教师的  借用 领用
+     * 物品审批操作 （二次审批）   第一次 通过、拒绝
 
-     * @param goodsApply
+     * @param orderId
      * @param approvalUserName
      * @param goodsApprovalStatus
      * @param goodsUseStatus
      * @return
      */
     @RequestMapping("/doNormalGoodsApplyApprove")
-    public CommonResult doNormalGoodsApplyApprove(@RequestBody GoodsApply goodsApply,
-                                  @RequestParam(value = "approvalUserName") String approvalUserName,
-                                  @RequestParam(value = "goodsApprovalStatus") int goodsApprovalStatus,
-                                  @RequestParam(value = "goodsUseStatus") int goodsUseStatus){
+    public CommonResult doNormalGoodsApplyApprove(@RequestParam(value = "orderId") int orderId,
+                                  @RequestParam(value = "approvalUserName",required = false) String approvalUserName,
+                                  @RequestParam(value = "goodsApprovalStatus") Integer goodsApprovalStatus,
+                                  @RequestParam(value = "goodsUseStatus",required = false) Integer goodsUseStatus){
         // 前台传给后台该记录封装的goods对象
         // 并传当前登录用户名赋值给approvaleName
         // 以及   goodsApprovalStatus  物品申请审核状态：-1 未申请 0——待审核（默认）1——通过  2——拒绝
         // goodsUseStatus   物品使用状态：-1 未使用  0——借用 1——领用 2——归还 3——报废
         // 进行更新操作
-
-
-        goodsApply.setApprovalUserName(approvalUserName)
-                .setGoodsApprovalStatus(goodsApprovalStatus)
-                .setGoodsUseStatus(goodsUseStatus);
+        CommonResult commonResult = goodsApplyService.selectById(orderId);
+        GoodsApply goodsApply = JSON.parseObject(JSONObject.toJSONString(commonResult.getObj()),GoodsApply.class);
+        if(CommonUtil.isNull(goodsApply)){
+            return CommonResult.error();
+        }
+        if(StringUtils.isNotBlank(approvalUserName)){
+            goodsApply.setApprovalUserName(approvalUserName);
+        }
+        if(CommonUtil.isNotNull(goodsApprovalStatus) && null != goodsApprovalStatus){
+            goodsApply.setGoodsApprovalStatus(goodsApprovalStatus);
+        }
+        if(CommonUtil.isNotNull(goodsUseStatus) && null != goodsUseStatus){
+            goodsApply.setGoodsUseStatus(goodsUseStatus);
+        }
         CommonResult result = goodsApplyService.update(goodsApply);
         /**
          * 借用需要归还，有归还日期；领用和报废不需要归还，无归还日期。
@@ -280,36 +312,49 @@ public class GoodsApplyController {
     }
 
     /**
-     * 物品审批操作 （二次审批）   管理员的   归还、报废
+     * 物品审批操作 （二次审批）  归还、报废
 
-     * @param goodsApply
+     * @param orderId
      * @param approvalUserName
      * @param goodsApprovalStatus
      * @param goodsUseStatus
      * @return
      */
     @RequestMapping("/doSpecialGoodsApplyApprove")
-    public CommonResult doSpecialGoodsApplyApprove(@RequestBody GoodsApply goodsApply,
-                                                  @RequestParam(value = "approvalUserName") String approvalUserName,
-                                                  @RequestParam(value = "goodsApprovalStatus") int goodsApprovalStatus,
-                                                  @RequestParam(value = "goodsUseStatus") int goodsUseStatus){
+    public CommonResult doSpecialGoodsApplyApprove(@RequestParam(value = "orderId") int orderId,
+                                                   @RequestParam(value = "approvalUserName",required = false) String approvalUserName,
+                                                   @RequestParam(value = "goodsApprovalStatus",required = false) Integer goodsApprovalStatus,
+                                                   @RequestParam(value = "goodsUseStatus") Integer goodsUseStatus){
         // 前台传给后台该记录封装的goods对象
         // 并传当前登录用户名赋值给approvaleName
         // 以及   goodsApprovalStatus  物品申请审核状态：-1 未申请 0——待审核（默认）1——通过  2——拒绝
         // goodsUseStatus   物品使用状态：-1 未使用  0——借用 1——领用 2——归还 3——报废
         // 进行更新操作
-
-
-        goodsApply.setApprovalUserName(approvalUserName)
-                .setGoodsApprovalStatus(goodsApprovalStatus)
-                .setGoodsUseStatus(goodsUseStatus);
+        CommonResult commonResult = goodsApplyService.selectById(orderId);
+        GoodsApply goodsApply = JSON.parseObject(JSONObject.toJSONString(commonResult.getObj()),GoodsApply.class);
+        if(CommonUtil.isNull(goodsApply)){
+            return CommonResult.error();
+        }
+        if(StringUtils.isNotBlank(approvalUserName)){
+            goodsApply.setApprovalUserName(approvalUserName);
+        }
+        if(CommonUtil.isNotNull(goodsApprovalStatus) && null != goodsApprovalStatus){
+            goodsApply.setGoodsApprovalStatus(goodsApprovalStatus);
+        }
+        if(CommonUtil.isNotNull(goodsUseStatus) && null != goodsUseStatus){
+            goodsApply.setGoodsUseStatus(goodsUseStatus);
+        }
+//
+//        goodsApply.setApprovalUserName(approvalUserName)
+//                .setGoodsApprovalStatus(goodsApprovalStatus)
+//                .setGoodsUseStatus(goodsUseStatus);
         CommonResult result = goodsApplyService.update(goodsApply);
         /**
          * 借用需要归还，有归还日期；领用和报废不需要归还，无归还日期。
          * 借用、领用和报废都需要将库存内的指定物品减去对应数量，归还需加上对应数量。
          */
         if(result.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
-            if (goodsApprovalStatus == 1) {
+            if (goodsApply.getGoodsApprovalStatus() == 1) {
                 if(goodsUseStatus == 2) { // 如果是归还 需要回加
                     Goods goods = new Goods();
                     goods.setGoodsName(goodsApply.getRepertoryName())
@@ -328,16 +373,15 @@ public class GoodsApplyController {
 
 
 
-    //  ======================申请报废=======================================
+    //  ======================直接申请报废=======================================
 
     /**
-     * 管理员申请报废
+     * 管理员直接申请报废
      * @param goodsApply
      * @return
      */
     @RequestMapping("/scrapApply")
-    public CommonResult scrapApply(@RequestBody GoodsApply goodsApply,
-                                   @RequestParam(value = "goodsUseStatus") int goodsUseStatus){
+    public CommonResult scrapApply(@RequestBody GoodsApply goodsApply){
 
         /**
          *
@@ -355,8 +399,27 @@ public class GoodsApplyController {
          申请人和审批人都为管理员自己，审批结果默认为“通过”，状态应为“报废”。
          *该操作除管理员发现库存内有物品报废时可以发起，在根据料单归还的物品中若发现有物品报废也可发起。
          */
-        goodsApply.setGoodsUseStatus(goodsUseStatus);
-        return goodsApplyService.update(goodsApply);
+        goodsApply.setGoodsUseStatus(3);
+        Goods goods = new Goods();
+        goods.setGoodsName(goodsApply.getRepertoryName())
+                .setGoodsAddress(goodsApply.getRepertoryAddress())
+                .setGoodsSize(goodsApply.getRepertorySize())
+                .setGoodsNumbers(goodsApply.getRepertoryNumbers())
+                .setGoodsModel(goodsApply.getRepertoryModel());
+
+        // 按照规格和型号去查询记录表
+        // 申请的时候先扣除余量
+        CommonResult tempResult1 = informationService.subtract(goods);
+        if(tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
+            CommonResult tempResult2 = goodsApplyService.insert(goodsApply);
+            if(tempResult2.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
+                return CommonResult.success();
+            }else{
+                return CommonResult.error();
+            }
+        }else {
+            return tempResult1;
+        }
 
     }
 

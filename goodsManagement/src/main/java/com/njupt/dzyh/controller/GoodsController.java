@@ -5,13 +5,20 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.njupt.dzyh.domain.Goods;
 import com.njupt.dzyh.domain.dto.GenerateExcel;
+import com.njupt.dzyh.domain.roles.UserInfo;
 import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.otherFunctions.DownLoad;
 import com.njupt.dzyh.service.GoodsService;
 import com.njupt.dzyh.service.InformationService;
-import com.njupt.dzyh.utils.CommonResult;
-import com.njupt.dzyh.utils.CommonUtil;
+import com.njupt.dzyh.utils.*;
 import org.apache.ibatis.annotations.Param;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +28,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 一句话功能描述.
@@ -71,6 +79,7 @@ public class GoodsController {
     public CommonResult selectAllByPage(@PathVariable("current") int current,
                                         @PathVariable("size") int size,
                                         @RequestBody(required = false) Map<String,Object> conditionsMap){
+        System.out.println("xscxscsxscscscs");
        return goodsService.selectByPage(current,size,conditionsMap);
 
     }
@@ -121,42 +130,183 @@ public class GoodsController {
         return goodsService.insertBatch(goodsList);
     }
 
+//    /**
+//     * 批量——物品信息录入  传入的是Excel还是Json格式的goodsList
+//     * 该为 正式版功能，最后调用该接口，但是不好测试，需要等前台联调
+//     * 暂用下方url方式测试
+//     * @param file
+//     * @return
+//     */
+//    @RequestMapping("/insertBatchByFile")
+//    public CommonResult insertBatch(@RequestParam("file") MultipartFile file){
+//        CommonResult result = new CommonResult();
+//        try {
+//            //1. 先转换成json格式
+//            String fileName = file.getOriginalFilename();
+//            if(fileName.endsWith(".xls") || fileName.endsWith((".xlsx"))){
+//                JSONObject goodsJsonObj = CommonUtil.excelToJson(file);
+//                System.out.println("goodsJsonObj---\t" + goodsJsonObj.toJSONString());
+//                String key = "";
+//                if(goodsJsonObj.size()>1){
+//                    return  CommonResult.error(CommonResultEm.ERROR,"表格有多个子表，无法对应对象，Excel转换失败");
+//                }
+//                for(Map.Entry<String, Object> entry:goodsJsonObj.entrySet()){
+//                    key = entry.getKey();
+//                    System.out.println("key" + key);
+//                }
+//                List<Goods> goodsList = JSONArray
+//                        .parseArray(JSONArray.toJSONString(goodsJsonObj.get(key))).toJavaList(Goods.class);
+//                System.out.println("goodsList---\t" + goodsList);
+////                CommonResult rec = goodsService.insertBatch(goodsList);
+//                List<Goods> errorList = new ArrayList<>();
+//                if (0 == goodsList.size() || null == goodsList) {
+//                    return CommonResult.error();
+//                } else {
+//                    for (Goods goods : goodsList) {
+//                        CommonResult rec = goodsService.insert(goods);
+//                        if(!rec.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
+//                            errorList.add(goods);
+//                            continue;
+//                        }
+//                    }
+//                    if (0 == errorList.size())
+//                        return CommonResult.success();
+//                    else
+//                        return CommonResult.error(CommonResultEm.ERROR, "失败的列表：" + errorList);
+//                }
+////                    Integer rec = goodsDao.insertBatchSomeColumn(goodsList);
+//            }else{
+//                result.setResultCode(CommonResultEm.ERROR.getEcode());
+//                result.setResultMessage("文件格式不对【只接收xls、xlsx格式的文件】");
+//            }
+//        } catch (Exception e) {
+//            result.setResultCode(CommonResultEm.ERROR.getEcode());
+//            result.setResultMessage("Excel读取失败");
+//        }
+//        return result;
+//    }
+//
+//    public void deleteFile(File... files) {
+//        for (File file : files) {
+//            if (file.exists()) {
+//                file.delete();
+//            }
+//        }
+//    }
+
     /**
      * 批量——物品信息录入  传入的是Excel还是Json格式的goodsList
      * 该为 正式版功能，最后调用该接口，但是不好测试，需要等前台联调
      * 暂用下方url方式测试
-     * @param file
+     * @param multfile
      * @return
      */
     @RequestMapping("/insertBatchByFile")
-    public CommonResult insertBatch(@RequestParam("file") MultipartFile file){
+    public CommonResult insertBatch(@RequestParam("file") MultipartFile multfile){
         CommonResult result = new CommonResult();
+        List<Goods> goodsList = new ArrayList<>();
         try {
-            //1. 先转换成json格式
-            String fileName = file.getOriginalFilename();
-            if(fileName.endsWith(".xls") || fileName.endsWith((".xlsx"))){
-                JSONObject goodsJsonObj = CommonUtil.excelToJson(file);
-                System.out.println("goodsJsonObj---\t" + goodsJsonObj.toJSONString());
-                String key = "";
-                if(goodsJsonObj.size()>1){
-                    return  CommonResult.error(CommonResultEm.ERROR,"表格有多个子表，无法对应对象，Excel转换失败");
+//            // 获取文件名
+//            String fileName = multfile.getOriginalFilename();
+//            // 获取文件后缀
+//            String prefix=fileName.substring(fileName.lastIndexOf("."));
+//            // 用uuid作为文件名，防止生成的临时文件重复
+//            File excel = File.createTempFile(UUIDGenerator.getUUID(), prefix);
+//            // MultipartFile to File
+//            multfile.transferTo(excel);
+
+            //你的业务逻辑
+
+            File excel = MultipartFileToFileUtils.multipartFileToFile(multfile);
+
+            if (excel.isFile() && excel.exists()) {   //判断文件是否存在
+
+                String[] split = excel.getName().split("\\.");  //.是特殊字符，需要转义！！！！！
+                Workbook wb;
+                //根据文件后缀（xls/xlsx）进行判断
+                if ("xls".equals(split[1])) {
+                    FileInputStream fis = new FileInputStream(excel);   //文件流对象
+                    wb = new HSSFWorkbook(fis);
+                } else if ("xlsx".equals(split[1])) {
+                    FileInputStream fis = new FileInputStream(excel);   //文件流对象
+                    wb = new XSSFWorkbook(fis);
+                } else {
+                    System.out.println("文件类型错误!");
+                    return CommonResult.error(CommonResultEm.ERROR,"文件类型错误");
                 }
-                for(Map.Entry<String, Object> entry:goodsJsonObj.entrySet()){
-                    key = entry.getKey();
-                    System.out.println("key" + key);
+
+                //开始解析
+                Sheet sheet = wb.getSheetAt(0);     //读取sheet 0
+                System.out.println("开始读取文件");
+                int firstRowIndex = sheet.getFirstRowNum() + 1;   //第一行是列名，所以不读
+                int lastRowIndex = sheet.getLastRowNum();
+                System.out.println("firstRowIndex: " + firstRowIndex);
+                System.out.println("lastRowIndex: " + lastRowIndex);
+                DecimalFormat df = new DecimalFormat("0");
+                for (int rIndex = firstRowIndex; rIndex <= lastRowIndex; rIndex++) {   //遍历行
+                    System.out.println("rIndex: " + rIndex);
+                    Row row = sheet.getRow(rIndex);
+                    if (row != null) {
+                        Goods goods = new Goods();
+                        Cell cell = null;
+                        String categoryName = row.getCell(0).toString();
+                        String goodsName = row.getCell(1).toString();
+                        String goodsSize = row.getCell(2).toString();
+                        String goodsModel = row.getCell(3).toString();
+                        System.out.println("goodsModel:\t" + goodsModel);
+//                      Cell cell = row.getCell(4);
+                        Double goodsPrice = Double.parseDouble(row.getCell(4).toString());
+                        cell = row.getCell(5);
+                        Double goodsNum = Double.parseDouble(row.getCell(5).toString());
+                        Object inputValue1 = null;// 单元格值
+                        if (!CommonUtil.isNull(cell) && cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                            int longVal = (int) Math.round(cell.getNumericCellValue());
+                            if (Double.parseDouble(longVal + ".0") == goodsNum)
+                                inputValue1 = longVal;
+                            else
+                                inputValue1 = goodsNum;
+                        }
+                        String goodsAddress = row.getCell(6).toString();
+                        String goodsPup = row.getCell(7).toString();
+                        String buyer = row.getCell(8).toString();
+                        String roleName = row.getCell(9).toString();
+//                        cell = row.getCell(9);
+//                        Double roleId = Double.parseDouble(row.getCell(9).toString());
+//                        Object inputValue2 = null;// 单元格值
+//                        if (!CommonUtil.isNull(cell) && cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+//                            int longVal = (int) Math.round(cell.getNumericCellValue());
+//                            if (Double.parseDouble(longVal + ".0") == roleId)
+//                                inputValue2 = longVal;
+//                            else
+//                                inputValue2 = roleId;
+//                        }
+//                        SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+
+//                        System.out.println("storageTime:\t" + row.getCell(10).toString());
+//                        Date storageTime = DateCommonUtil.stringToDate(row.getCell(10).toString(), "yyyy-MM-dd HH:mm:ss");
+                        goods.setCategoryName(categoryName)
+                                .setStorageTime(DateCommonUtil.getSpecifyFormatDate(new Date(),"yyyy-MM-dd HH:mm:ss"))
+                                .setGoodsName(goodsName)
+                                .setBuyUserName(buyer)
+                                .setGoodsAddress(goodsAddress)
+                                .setGoodsSize(goodsSize)
+                                .setPurposeName(goodsPup)
+                                .setGoodsPrice(goodsPrice)
+                                .setGoodsModel(goodsModel)
+                                .setRoleName(roleName)
+                                .setGoodsNumbers((int) inputValue1);
+                        System.out.println(goods);
+                        goodsList.add(goods);
+                    }
                 }
-                List<Goods> goodsList = JSONArray
-                        .parseArray(JSONArray.toJSONString(goodsJsonObj.get(key))).toJavaList(Goods.class);
-                System.out.println("goodsList---\t" + goodsList);
-//                CommonResult rec = goodsService.insertBatch(goodsList);
                 List<Goods> errorList = new ArrayList<>();
                 if (0 == goodsList.size() || null == goodsList) {
                     return CommonResult.error();
                 } else {
-                    for (Goods goods : goodsList) {
-                        CommonResult rec = goodsService.insert(goods);
-                        if(!rec.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
-                            errorList.add(goods);
+                    for (Goods goods1 : goodsList) {
+                        CommonResult rec = goodsService.insert(goods1);
+                        if (!rec.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
+                            errorList.add(goods1);
                             continue;
                         }
                     }
@@ -165,14 +315,16 @@ public class GoodsController {
                     else
                         return CommonResult.error(CommonResultEm.ERROR, "失败的列表：" + errorList);
                 }
-//                    Integer rec = goodsDao.insertBatchSomeColumn(goodsList);
-            }else{
-                result.setResultCode(CommonResultEm.ERROR.getEcode());
-                result.setResultMessage("文件格式不对【只接收xls、xlsx格式的文件】");
+                //程序结束时，删除临时文件
+            } else {
+//                deleteFile(excel);
+                System.out.println("找不到指定的文件");
+                return CommonResult.error(CommonResultEm.ERROR,"找不到指定的文件");
             }
         } catch (Exception e) {
             result.setResultCode(CommonResultEm.ERROR.getEcode());
             result.setResultMessage("Excel读取失败");
+            e.printStackTrace();
         }
         return result;
     }
@@ -184,7 +336,7 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/insertBatchByUrl")
-    public CommonResult insertBatch(@Param("url") String url){
+    public CommonResult insertBatchByUrl(@Param("url") String url){
         CommonResult result = new CommonResult();
         try {
             //1. 先转换成json格式
@@ -229,6 +381,125 @@ public class GoodsController {
             result.setResultMessage("Excel读取失败");
         }
         return result;
+    }
+
+    /**
+     * 批量——物品信息录入  传入的是Excel还是Json格式的goodsList
+     * 测试版——url测试批量录入
+     * @param url
+     * @return
+     */
+    @RequestMapping("/insertBatch")
+    public CommonResult insertBatch(@Param("url") String url){
+        CommonResult result = new CommonResult();
+        List<Goods> goodsList = new ArrayList<>();
+        try {
+
+            File excel = new File(url);
+            if (excel.isFile() && excel.exists()) {   //判断文件是否存在
+
+                String[] split = excel.getName().split("\\.");  //.是特殊字符，需要转义！！！！！
+                Workbook wb;
+                //根据文件后缀（xls/xlsx）进行判断
+                if ("xls".equals(split[1])) {
+                    FileInputStream fis = new FileInputStream(excel);   //文件流对象
+                    wb = new HSSFWorkbook(fis);
+                } else if ("xlsx".equals(split[1])) {
+                    FileInputStream fis = new FileInputStream(excel);   //文件流对象
+                    wb = new XSSFWorkbook(fis);
+                } else {
+                    System.out.println("文件类型错误!");
+                    return CommonResult.error(CommonResultEm.ERROR,"文件类型错误");
+                }
+
+                //开始解析
+                Sheet sheet = wb.getSheetAt(0);     //读取sheet 0
+                System.out.println("开始读取文件");
+                int firstRowIndex = sheet.getFirstRowNum() + 1;   //第一行是列名，所以不读
+                int lastRowIndex = sheet.getLastRowNum();
+                System.out.println("firstRowIndex: " + firstRowIndex);
+                System.out.println("lastRowIndex: " + lastRowIndex);
+                DecimalFormat df = new DecimalFormat("0");
+                for (int rIndex = firstRowIndex; rIndex <= lastRowIndex; rIndex++) {   //遍历行
+                    System.out.println("rIndex: " + rIndex);
+                    Row row = sheet.getRow(rIndex);
+                    if (row != null) {
+                        Goods goods = new Goods();
+                        Cell cell = null;
+                        String categoryName = row.getCell(0).toString();
+                        String goodsName = row.getCell(1).toString();
+                        String goodsSize = row.getCell(2).toString();
+                        String goodsModel = row.getCell(3).toString();
+                        System.out.println("goodsModel:\t" + goodsModel);
+//                      Cell cell = row.getCell(4);
+                        Double goodsPrice = Double.parseDouble(row.getCell(4).toString());
+                        cell = row.getCell(5);
+                        Double goodsNum = Double.parseDouble(row.getCell(5).toString());
+                        Object inputValue1 = null;// 单元格值
+                        if (!CommonUtil.isNull(cell) && cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                            int longVal = (int) Math.round(cell.getNumericCellValue());
+                            if (Double.parseDouble(longVal + ".0") == goodsNum)
+                                inputValue1 = longVal;
+                            else
+                                inputValue1 = goodsNum;
+                        }
+                        String goodsAddress = row.getCell(6).toString();
+                        String goodsPup = row.getCell(7).toString();
+                        String buyer = row.getCell(8).toString();
+                        String roleName = row.getCell(9).toString();
+//                        cell = row.getCell(9);
+//                        Double roleId = Double.parseDouble(row.getCell(9).toString());
+//                        Object inputValue2 = null;// 单元格值
+//                        if (!CommonUtil.isNull(cell) && cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+//                            int longVal = (int) Math.round(cell.getNumericCellValue());
+//                            if (Double.parseDouble(longVal + ".0") == roleId)
+//                                inputValue2 = longVal;
+//                            else
+//                                inputValue2 = roleId;
+//                        }
+                        Date storageTime = DateCommonUtil.stringToDate(row.getCell(10).toString(), "yyyy-MM-dd HH:mm:ss");
+                        goods.setCategoryName(categoryName)
+                                .setStorageTime(storageTime)
+                                .setGoodsName(goodsName)
+                                .setBuyUserName(buyer)
+                                .setGoodsAddress(goodsAddress)
+                                .setGoodsSize(goodsSize)
+                                .setPurposeName(goodsPup)
+                                .setGoodsPrice(goodsPrice)
+                                .setGoodsModel(goodsModel)
+                                .setRoleName(roleName)
+                                .setGoodsNumbers((int) inputValue1);
+                        System.out.println(goods);
+                        goodsList.add(goods);
+                    }
+                }
+                    List<Goods> errorList = new ArrayList<>();
+                    if (0 == goodsList.size() || null == goodsList) {
+                        return CommonResult.error();
+                    } else {
+                        for (Goods goods1 : goodsList) {
+                            CommonResult rec = goodsService.insert(goods1);
+                            if (!rec.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
+                                errorList.add(goods1);
+                                continue;
+                            }
+                        }
+                        if (0 == errorList.size())
+                            return CommonResult.success();
+                        else
+                            return CommonResult.error(CommonResultEm.ERROR, "失败的列表：" + errorList);
+                    }
+            } else {
+                System.out.println("找不到指定的文件");
+                return CommonResult.error(CommonResultEm.ERROR,"找不到指定的文件");
+            }
+        } catch (Exception e) {
+            result.setResultCode(CommonResultEm.ERROR.getEcode());
+            result.setResultMessage("Excel读取失败");
+            e.printStackTrace();
+        }
+        return result;
+
     }
 
 
@@ -291,7 +562,6 @@ public class GoodsController {
     /**
      *
      * @param conditionsMap   条件封装成对象
-     * @param outUrl
      * @param fileName
      * @return
      * @throws IOException
@@ -299,23 +569,28 @@ public class GoodsController {
      */
     @RequestMapping("/generateExcel")
     public CommonResult generateExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
-                                      @Param("outUrl") String outUrl,
-                                      @Param("fileName") String fileName) throws IOException, ParseException {
+                                      @Param("fileName") String fileName,HttpServletRequest request,
+                                      HttpServletResponse response) throws IOException {
 
         Object obj = goodsService.selectByConditions(conditionsMap).getObj();
         if(null == obj){
             return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
         }
         List<Goods> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(Goods.class);
-        GenerateExcel generateExcel = new GenerateExcel(list,outUrl,fileName);
-        return goodsService.generateExcel(generateExcel);
+        ListToExcel.goodsToExcel(resource,fileName,list);
+
+        DownLoad.downloadFile(resource,fileName,request,response);
+        return CommonResult.success();
+//        GenerateExcel generateExcel = new GenerateExcel(list,outUrl,fileName);
+//        return goodsService.generateExcel(generateExcel);
     }
 
     //    ----------模板下载------------------
     @RequestMapping("/downLoadGoodsApplyTemplate")
     public void downLoadTemplate(HttpServletRequest request,
-                                 HttpServletResponse response) throws UnsupportedEncodingException {
+                                 HttpServletResponse response) throws IOException {
         String fileName = "goodsTemplate.xls";
+        ListToExcel.goodsToExcel(resource,fileName,null);
         DownLoad.downloadFile(resource,fileName,request,response);
     }
 

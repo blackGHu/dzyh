@@ -13,6 +13,7 @@ import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.GoodsApplyService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +73,7 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyDao, GoodsApply
 
 
     /**
-     * 分页查询所有
+     * 管理员分页查询所有
      * @param current  当前页码         默认1
      * @param size     每页显示数量     默认4
      * @return
@@ -90,30 +91,43 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyDao, GoodsApply
         if(null == conditionsMap){
             goodsApplyDao.selectPage(page,null);
         }else {
-            if(conditionsMap.containsKey("categoryId")){
-                wrapper.eq("category_id",conditionsMap.get("categoryId"));
-                conditionsMap.remove("categoryId");
+            if(conditionsMap.containsKey("categoryName")){
+                Object value = conditionsMap.get("categoryName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("category_name", value);
+                }
+                conditionsMap.remove("categoryName");
             }
-            if(conditionsMap.containsKey("purposeId")){
-                wrapper.eq("purpose_id",conditionsMap.get("purposeId"));
-                conditionsMap.remove("purposeId");
+            if(conditionsMap.containsKey("purposeName")){
+                Object value = conditionsMap.get("purposeName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("purpose_name", value);
+                }
+                conditionsMap.remove("purposeName");
             }
             if(conditionsMap.containsKey("goodsUseStatus")){
-                wrapper.eq("goods_use_status",conditionsMap.get("goodsUseStatus"));
+                Object value = conditionsMap.get("goodsUseStatus");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("goods_use_status", value);
+                }else{
+                    wrapper.ne("goods_use_status", -1);
+                }
                 conditionsMap.remove("goodsUseStatus");
             }
             //  当有时间范围的时候需要编写   between(...)
             if (conditionsMap.containsKey("borrowTime")) {
                 //  如果只有申请日期查询，条件为大于等于这个日期
                 //  如果有申请日期，还有归还日期，则筛选这两个日期间的
-                if (CommonUtil.isNotNull(conditionsMap.get("borrowTime"))) {
-                    wrapper.ge("borrow_time", conditionsMap.get("borrowTime"));
+                Object value = conditionsMap.get("borrowTime");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.ge("borrow_time", value);
                 }
                 conditionsMap.remove("borrowTime");
             }
             if (conditionsMap.containsKey("returnTime")) {
-                if (CommonUtil.isNotNull(conditionsMap.get("returnTime"))) {
-                    wrapper.le("return_time", conditionsMap.get("returnTime"));
+                Object value = conditionsMap.get("returnTime");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.le("return_time", value);
                 }
                 conditionsMap.remove("returnTime");
             }
@@ -135,7 +149,96 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyDao, GoodsApply
 //        long size = page.getSize();
         System.out.println(total + "--" + current + "--" + size);
         if(0 ==goodsApplyList.size()){
-            return CommonResult.error();
+            return CommonResult.success();
+        }
+        return CommonResult.success(new GoodsApplyListDto(total,goodsApplyList));
+    }
+
+    /**
+     * 管理员分页查询所有
+     * @param current  当前页码         默认1
+     * @param size     每页显示数量     默认4
+     * @return
+     */
+    public CommonResult selectPersonalByPage(int current,int size,Map<String,Object> conditionsMap) {
+        System.out.println("分页查询 begin");
+        if(current<=0 || CommonUtil.isNull(current)){
+            current = 1;
+        }
+        if(size<=0 || CommonUtil.isNull(size)){
+            size = 4;
+        }
+        Page<GoodsApply> page = new Page<>(current,size);
+        QueryWrapper<GoodsApply> wrapper = new QueryWrapper<>();
+        if(null == conditionsMap){
+            goodsApplyDao.selectPage(page,null);
+        }else {
+            if(conditionsMap.containsKey("categoryName")){
+                Object value = conditionsMap.get("categoryName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("category_name", value);
+                }
+                conditionsMap.remove("categoryName");
+            }
+            if(conditionsMap.containsKey("purposeName")){
+                Object value = conditionsMap.get("purposeName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("purpose_name", value);
+                }
+                conditionsMap.remove("purposeName");
+            }
+            if (conditionsMap.containsKey("applyUserName")) {
+                Object value = conditionsMap.get("applyUserName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("apply_user_name", value);
+                }
+                conditionsMap.remove("applyUserName");
+            }
+            if(conditionsMap.containsKey("goodsUseStatus")){
+                Object value = conditionsMap.get("goodsUseStatus");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("goods_use_status", value);
+                }else{
+                    wrapper.ne("goods_use_status", -1);
+                }
+                conditionsMap.remove("goodsUseStatus");
+            }
+            //  当有时间范围的时候需要编写   between(...)
+            if (conditionsMap.containsKey("borrowTime")) {
+                //  如果只有申请日期查询，条件为大于等于这个日期
+                //  如果有申请日期，还有归还日期，则筛选这两个日期间的
+                Object value = conditionsMap.get("borrowTime");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.ge("borrow_time", value);
+                }
+                conditionsMap.remove("borrowTime");
+            }
+            if (conditionsMap.containsKey("returnTime")) {
+                Object value = conditionsMap.get("returnTime");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.le("return_time", value);
+                }
+                conditionsMap.remove("returnTime");
+            }
+            for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (CommonUtil.isNotNull(value)) {
+                    wrapper.like(CommonUtil.camel2Underline(key), value);
+                }
+            }
+            goodsApplyDao.selectPage(page, wrapper);
+
+        }
+        List<GoodsApply> goodsApplyList = page.getRecords();
+
+        System.out.println("分页查询 end");
+        long total = page.getTotal();
+//        long current = page.getCurrent();
+//        long size = page.getSize();
+        System.out.println(total + "--" + current + "--" + size);
+        if(0 ==goodsApplyList.size()){
+            return CommonResult.success();
         }
         return CommonResult.success(new GoodsApplyListDto(total,goodsApplyList));
     }
@@ -150,30 +253,43 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyDao, GoodsApply
             list = goodsApplyDao.selectList(null);
         }else {
             // 有条件
-            if(conditionsMap.containsKey("categoryId")){
-                wrapper.eq("category_id",conditionsMap.get("categoryId"));
-                conditionsMap.remove("categoryId");
+            if(conditionsMap.containsKey("categoryName")){
+                Object value = conditionsMap.get("categoryName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("category_name", value);
+                }
+                conditionsMap.remove("categoryName");
             }
-            if(conditionsMap.containsKey("purposeId")){
-                wrapper.eq("purpose_id",conditionsMap.get("purposeId"));
-                conditionsMap.remove("purposeId");
+            if(conditionsMap.containsKey("purposeName")){
+                Object value = conditionsMap.get("purposeName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("purpose_name", value);
+                }
+                conditionsMap.remove("purposeName");
             }
             if(conditionsMap.containsKey("goodsUseStatus")){
-                wrapper.eq("goods_use_status",conditionsMap.get("goodsUseStatus"));
+                Object value = conditionsMap.get("goodsUseStatus");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("goods_use_status", value);
+                }else{
+                    wrapper.ne("goods_use_status", -1);
+                }
                 conditionsMap.remove("goodsUseStatus");
             }
             //  当有时间范围的时候需要编写   between(...)
             if (conditionsMap.containsKey("borrowTime")) {
                 //  如果只有申请日期查询，条件为大于等于这个日期
                 //  如果有申请日期，还有归还日期，则筛选这两个日期间的
-                if (CommonUtil.isNotNull(conditionsMap.get("borrowTime"))) {
-                    wrapper.ge("borrow_time", conditionsMap.get("borrowTime"));
+                Object value = conditionsMap.get("borrowTime");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.ge("borrow_time", value);
                 }
                 conditionsMap.remove("borrowTime");
             }
             if (conditionsMap.containsKey("returnTime")) {
-                if (CommonUtil.isNotNull(conditionsMap.get("returnTime"))) {
-                    wrapper.le("return_time", conditionsMap.get("returnTime"));
+                Object value = conditionsMap.get("returnTime");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.le("return_time", value);
                 }
                 conditionsMap.remove("returnTime");
             }
@@ -187,7 +303,7 @@ public class GoodsApplyServiceImpl extends ServiceImpl<GoodsApplyDao, GoodsApply
             list = goodsApplyDao.selectList(wrapper);
         }
         if(0 == list.size() || null == list){
-            return CommonResult.error();
+            return CommonResult.success();
         }else {
             return CommonResult.success(list);
         }

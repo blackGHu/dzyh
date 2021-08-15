@@ -1,7 +1,8 @@
 server:
   port: 8082
 
-resource: C:\\Users\\Administrator\\Desktop\\file
+#resource: C:\\Users\\Administrator\\Desktop\\file
+resource: C:\\Users\\12927\\Desktop\\file\\
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/db_dzyh?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC

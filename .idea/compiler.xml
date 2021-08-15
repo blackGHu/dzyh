@@ -2,23 +2,17 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="goodsManagement" />
         <module name="common" />
-        <module name="informationCheck" />
         <module name="shiroManager" />
+        <module name="informationCheck" />
+        <module name="goodsManagement" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="common" target="1.8" />
-      <module name="dzyh" target="1.8" />
-      <module name="goodsManagement" target="1.8" />
-      <module name="informationCheck" target="8" />
-      <module name="shiroManager" target="8" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

@@ -1,5 +1,6 @@
 package com.njupt.dzyh.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.njupt.dzyh.domain.Goods;
@@ -8,17 +9,25 @@ import com.njupt.dzyh.domain.MaterialListOrder;
 import com.njupt.dzyh.domain.dto.GenerateMaterialListExcel;
 import com.njupt.dzyh.domain.dto.GenerateMaterialListOrderExcel;
 import com.njupt.dzyh.enums.CommonResultEm;
+import com.njupt.dzyh.otherFunctions.DownLoad;
 import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.service.MaterialListService;
 import com.njupt.dzyh.utils.CommonResult;
+import com.njupt.dzyh.utils.CommonUtil;
+import com.njupt.dzyh.utils.ListToExcel;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +46,8 @@ public class MaterialListApplyController {
 
     private final static Logger logger = LoggerFactory.getLogger(MaterialListApplyController.class);
 
+    @Value("${resource}")
+    private String resource;
 
     @Autowired
     private InformationService informationService;
@@ -84,6 +95,7 @@ public class MaterialListApplyController {
         String orderDescribes = materialListOrder.getOrderDescribe(); // 获取该料单中申请的物品对象str  以“；”为分割
         String[] materialListArr = orderDescribes.trim().split(";");
         int applyNumber = materialListOrder.getApplyNumber();
+        List<CommonResult> results = new ArrayList<>();
         for(String tempMaterialList:materialListArr){
             String[] temp = tempMaterialList.trim().split(" ");
             String name = temp[1];
@@ -96,8 +108,12 @@ public class MaterialListApplyController {
                     .setGoodsSize(size);
             int oldNum = informationService.getItem(goods);
             if(oldNum < newNum * applyNumber){
-                return CommonResult.error(CommonResultEm.ERROR,model + " " + size + "库存不足");
+                informationService.subtract(goods);
+                results.add(CommonResult.error(CommonResultEm.ERROR,model + " " + size + "库存不足"));
             }
+        }
+        if(0 == results.size() || null != results ){
+            return CommonResult.error(CommonResultEm.ERROR,"有库存不足，料单申请失败");
         }
         for(String tempMaterialList:materialListArr){
 //            applyNumber * 里面的数  然后进行封装Goods  然后进行subtract
@@ -133,12 +149,19 @@ public class MaterialListApplyController {
      * 料单申请审批
      */
     @RequestMapping("/doMaterialListOrderApprove")
-    public CommonResult doMaterialListOrderApprove(@RequestBody MaterialListOrder materialListOrder,
-                                            @RequestParam(value = "goodsApprovalStatus") int goodsApprovalStatus){
+    public CommonResult doMaterialListOrderApprove(@RequestParam("materialListOrderId") int materialListOrderId ,
+                                            @RequestParam(value = "goodsApprovalStatus",required = false) Integer goodsApprovalStatus){
 
-        
+        CommonResult commonResult = materialListService.selectBymaterialListOrderId(materialListOrderId);
+        MaterialListOrder materialListOrder = JSON.parseObject(JSONObject.toJSONString(commonResult.getObj()),MaterialListOrder.class);
+        if(CommonUtil.isNull(materialListOrder)){
+            return CommonResult.error();
+        }
+        if(CommonUtil.isNotNull(goodsApprovalStatus) && null != goodsApprovalStatus){
+            materialListOrder.setGoodsApprovalStatue(goodsApprovalStatus);
+        }
 
-        materialListOrder.setGoodsApprovalStatue(goodsApprovalStatus);
+//        materialListOrder.setGoodsApprovalStatue(goodsApprovalStatus);
 
         //  更新料单申请表
         CommonResult result = materialListService.updateMaterialListOrder(materialListOrder);
@@ -207,13 +230,11 @@ public class MaterialListApplyController {
      */
     @RequestMapping("/deletByMaterialListOrderId")
     public CommonResult deletByMaterialListOrderId(@Param("materialListOrderId") int materialListOrderId){
-
+        MaterialListOrder materialListOrder = JSONObject
+                .parseObject(JSONObject.toJSONString(materialListService
+                        .selectBymaterialListOrderId(materialListOrderId).getObj()),MaterialListOrder.class);
         CommonResult tempResult1 = materialListService.deletByMaterialListOrderId(materialListOrderId);
         if(tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
-            MaterialListOrder materialListOrder = JSONObject
-                    .parseObject(JSONObject.toJSONString(materialListService
-                            .selectBymaterialListOrderId(materialListOrderId).getObj()),MaterialListOrder.class);
-
             if (materialListOrder.getGoodsApprovalStatue() == 1) {
 //                MaterialList materialList = (MaterialList) materialListService
 //                        .selectBymaterialListId(materialListOrder.getMaterialListId()).getObj();
@@ -302,7 +323,7 @@ public class MaterialListApplyController {
 
 
     /**
-     * 分页查询所有
+     * 管理员分页查询所有
      * @param current  当前页码         默认1
      * @param size     每页显示数量     默认4
      * @return
@@ -314,6 +335,22 @@ public class MaterialListApplyController {
         return materialListService.selectAllMaterialListOrderByPage(current,size,conditionsMap);
 
     }
+
+//    /**
+//     * 教师学生分页查询所有
+//     * @param current  当前页码         默认1
+//     * @param size     每页显示数量     默认4
+//     * @return
+//     */
+//    @RequestMapping("/selectAllMaterialListOrderPersonalByPage/{current}/{size}")
+//    public CommonResult selectAllMaterialListOrderPersonalByPage(@PathVariable("current") int current,
+//                                                         @PathVariable("size") int size,
+//                                                         @RequestBody(required = false) Map<String,Object> conditionsMap){
+//        return materialListService.selectAllMaterialListOrderPersonalByPage(current,size,conditionsMap);
+//
+//    }
+
+
 
 //    /**
 //     * 根据ID查询物品
@@ -336,30 +373,38 @@ public class MaterialListApplyController {
     //     ---------导出报表--------------
     @RequestMapping("/generateMaterialListExcel")
     public CommonResult generateMaterialListExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
-                                                  @Param("outUrl") String outUrl,
-                                                  @Param("fileName") String fileName) throws IOException, ParseException {
+                                                  @Param("fileName") String fileName, HttpServletRequest request,
+                                                  HttpServletResponse response) throws IOException {
         Object obj = materialListService.selectByMaterialListConditions(conditionsMap).getObj();
         if(null == obj){
             return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
         }
         List<MaterialList> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(MaterialList.class);
-        GenerateMaterialListExcel generateMaterialListExcel = new GenerateMaterialListExcel(list,outUrl,fileName);
-        return materialListService.generateMaterialListExcel(generateMaterialListExcel);
+        ListToExcel.materialListToExcel(resource,fileName,list);
+
+        DownLoad.downloadFile(resource,fileName,request,response);
+//        GenerateMaterialListExcel generateMaterialListExcel = new GenerateMaterialListExcel(list,outUrl,fileName);
+//        return materialListService.generateMaterialListExcel(generateMaterialListExcel);
+        return CommonResult.success();
     }
 
 
     //     ---------导出报表--------------
     @RequestMapping("/generateMaterialListOrderExcel")
     public CommonResult generateMaterialListOrderExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
-                                                       @Param("outUrl") String outUrl,
-                                                       @Param("fileName") String fileName) throws IOException, ParseException {
+                                                       @Param("fileName") String fileName, HttpServletRequest request,
+                                                       HttpServletResponse response) throws IOException{
         Object obj = materialListService.selectByMaterialListOrderConditions(conditionsMap).getObj();
         if(null == obj){
             return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
         }
         List<MaterialListOrder> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(MaterialListOrder.class);
-        GenerateMaterialListOrderExcel generateMaterialListOrderExcel = new GenerateMaterialListOrderExcel(list,outUrl,fileName);
-        return materialListService.generateMaterialListOrderExcel(generateMaterialListOrderExcel);
+//        GenerateMaterialListOrderExcel generateMaterialListOrderExcel = new GenerateMaterialListOrderExcel(list,outUrl,fileName);
+//        return materialListService.generateMaterialListOrderExcel(generateMaterialListOrderExcel);
+        ListToExcel.materialListOrderToExcel(resource,fileName,list);
+
+        DownLoad.downloadFile(resource,fileName,request,response);
+        return CommonResult.success();
     }
 
 

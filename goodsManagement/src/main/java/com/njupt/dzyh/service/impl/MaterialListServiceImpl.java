@@ -17,6 +17,7 @@ import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.service.MaterialListService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,13 +109,19 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
         if(null == conditionsMap){
             materialListDao.selectPage(page,null);
         }else {
-            if(conditionsMap.containsKey("collegeId")){
-                wrapper.eq("college_id",conditionsMap.get("collegeId"));
-                conditionsMap.remove("collegeId");
+            if(conditionsMap.containsKey("collegeName")){
+                Object value = conditionsMap.get("collegeName");
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("college_name", conditionsMap.get("collegeName"));
+                }
+                conditionsMap.remove("collegeName");
             }
-            if(conditionsMap.containsKey("majorId")){
-                wrapper.eq("major_id",conditionsMap.get("majorId"));
-                conditionsMap.remove("majorId");
+            if(conditionsMap.containsKey("majorName")){
+                Object value = conditionsMap.get("majorName");
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("major_name", conditionsMap.get("majorName"));
+                }
+                conditionsMap.remove("majorName");
             }
             for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
                 String key = entry.getKey();
@@ -134,14 +141,14 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
 //        long size = page.getSize();
         System.out.println(total + "--" + current + "--" + size);
         if(0 ==materialLists.size()){
-            return CommonResult.error();
+            return CommonResult.success();
         }
         return CommonResult.success(new MaterialListDto(total,materialLists));
     }
 
 
     /**
-     * 分页查询所有料单申请
+     * 管理员分页查询所有料单申请
      * @param current  当前页码         默认1
      * @param size     每页显示数量     默认4
      * @return
@@ -160,11 +167,17 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
             materialListOrderDao.selectPage(page,null);
         }else {
             if(conditionsMap.containsKey("collegeName")){
-                wrapper.eq("college_name",conditionsMap.get("collegeName"));
+                Object value = conditionsMap.get("collegeName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("college_name", value);
+                }
                 conditionsMap.remove("collegeName");
             }
             if(conditionsMap.containsKey("majorName")){
-                wrapper.eq("major_name",conditionsMap.get("majorName"));
+                Object value = conditionsMap.get("majorName");
+                if(CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("major_name", value);
+                }
                 conditionsMap.remove("majorName");
             }
             for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
@@ -202,7 +215,7 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
 //        long size = page.getSize();
         System.out.println(total + "--" + current + "--" + size);
         if(0 ==materialListOrders.size()){
-            return CommonResult.error();
+            return CommonResult.success();
         }
         return CommonResult.success(new MaterialListOrderDto(total,materialListOrders));
     }
@@ -226,13 +239,19 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
             list = materialListDao.selectList(null);
         }else {
             // 有条件
-            if(conditionsMap.containsKey("collegeId")){
-                wrapper.eq("college_id",conditionsMap.get("collegeId"));
-                conditionsMap.remove("collegeId");
+            if(conditionsMap.containsKey("collegeName")){
+                Object value = conditionsMap.get("collegeName");
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("college_name", value);
+                }
+                conditionsMap.remove("collegeName");
             }
-            if(conditionsMap.containsKey("majorId")){
-                wrapper.eq("major_id",conditionsMap.get("majorId"));
-                conditionsMap.remove("majorId");
+            if(conditionsMap.containsKey("majorName")){
+                Object value = conditionsMap.get("majorName");
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("major_name", value);
+                }
+                conditionsMap.remove("majorName");
             }
             for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
                 String key = entry.getKey();
@@ -244,7 +263,7 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
             list = materialListDao.selectList(wrapper);
         }
         if(0 == list.size() || null == list){
-            return CommonResult.error();
+            return CommonResult.success();
         }else {
             return CommonResult.success(list);
         }
@@ -260,11 +279,17 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
         }else {
             // 有条件
             if(conditionsMap.containsKey("collegeName")){
-                wrapper.eq("college_name",conditionsMap.get("collegeName"));
+                Object value = conditionsMap.get("collegeName");
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("college_name", value);
+                }
                 conditionsMap.remove("collegeName");
             }
             if(conditionsMap.containsKey("majorName")){
-                wrapper.eq("major_name",conditionsMap.get("majorName"));
+                Object value = conditionsMap.get("majorName");
+                if (CommonUtil.isNotNull(value) && !value.equals("") && StringUtils.isNotBlank(((String)value))) {
+                    wrapper.eq("major_name", value);
+                }
                 conditionsMap.remove("majorName");
             }
             for (Map.Entry<String, Object> entry : conditionsMap.entrySet()) {
@@ -277,7 +302,7 @@ public class  MaterialListServiceImpl extends ServiceImpl<MaterialListDao, Mater
             list = materialListOrderDao.selectList(wrapper);
         }
         if(0 == list.size() || null == list){
-            return CommonResult.error();
+            return CommonResult.success();
         }else {
             return CommonResult.success(list);
         }

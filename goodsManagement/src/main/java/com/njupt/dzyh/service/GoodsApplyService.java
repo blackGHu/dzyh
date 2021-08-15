@@ -30,6 +30,8 @@ public interface GoodsApplyService {
     CommonResult selectByConditions(Map<String, Object> map);
 
     CommonResult selectByPage(int current, int size, Map<String, Object> conditionsMap);
+    CommonResult selectPersonalByPage(int current, int size, Map<String, Object> conditionsMap);
+
 
     CommonResult generateExcel(GenerateGoodsApplyExcel generateExcel) throws IOException, ParseException;
 }

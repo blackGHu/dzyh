@@ -47,7 +47,7 @@ public class CategoryController {
     }
 
     @RequestMapping("/deleteCategoryById")
-    public CommonResult deleteCategoryById(@Param("categoryId") int categoryId){
+    public CommonResult deleteCategoryById(@Param("categoryId") Integer categoryId){
         return categoryService.deletById(categoryId);
     }
 

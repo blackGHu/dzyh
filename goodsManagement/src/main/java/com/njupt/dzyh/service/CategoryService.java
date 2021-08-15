@@ -14,13 +14,13 @@ import java.util.Map;
 public interface CategoryService {
     CommonResult selectAll();
 
-    CommonResult selectById(int categoryId);
+    CommonResult selectById(Integer categoryId);
 
     CommonResult insert(Category category);
 
     CommonResult insertBatch(List<Category> categoryList);
 
-    CommonResult deletById(int categoryId);
+    CommonResult deletById(Integer categoryId);
 
     CommonResult update(Category category);
 

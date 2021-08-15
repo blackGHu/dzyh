@@ -52,7 +52,10 @@ public class Goods implements Serializable {
     private String buyUserName;
 
     // 权限ID  默认0 访客
-    private Integer roleId;
+    private String roleName;
+
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date storageTime;
 
 //    // 申请人ID —— user_name
 //    private String applyUserName;
