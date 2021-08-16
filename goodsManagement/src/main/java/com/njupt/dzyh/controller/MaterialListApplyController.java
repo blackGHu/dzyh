@@ -94,30 +94,38 @@ public class MaterialListApplyController {
 //                .selectBymaterialListId(materialListOrder.getMaterialListId()).getObj();
         String orderDescribes = materialListOrder.getOrderDescribe(); // 获取该料单中申请的物品对象str  以“；”为分割
         String[] materialListArr = orderDescribes.trim().split(";");
+        System.out.println("materialListArr--------" + materialListArr.toString());
         int applyNumber = materialListOrder.getApplyNumber();
-        List<CommonResult> results = new ArrayList<>();
-        for(String tempMaterialList:materialListArr){
-            String[] temp = tempMaterialList.trim().split(" ");
-            String name = temp[1];
-            String size = temp[2];
-            String model = temp[3];
-            int newNum = Integer.parseInt(temp[4].substring(0,1));
-            Goods goods = new Goods();
-            goods.setGoodsModel(model)
-                    .setGoodsName(name)
-                    .setGoodsSize(size);
-            int oldNum = informationService.getItem(goods);
-            if(oldNum < newNum * applyNumber){
-                informationService.subtract(goods);
-                results.add(CommonResult.error(CommonResultEm.ERROR,model + " " + size + "库存不足"));
-            }
-        }
-        if(0 == results.size() || null != results ){
-            return CommonResult.error(CommonResultEm.ERROR,"有库存不足，料单申请失败");
-        }
+//        List<CommonResult> results = new ArrayList<>();
+//        for(String tempMaterialList:materialListArr){
+//            String[] temp = tempMaterialList.trim().split(" ");
+//            System.out.println("temp----------" + temp.toString());
+//            String name = temp[1];
+//            String size = temp[2];
+//            String model = temp[3];
+//            int newNum = Integer.parseInt(temp[4].substring(0,1));
+//            System.out.println("newNum-----" + newNum);
+//            Goods goods = new Goods();
+//            goods.setGoodsModel(model)
+//                    .setGoodsName(name)
+//                    .setGoodsSize(size);
+//            int oldNum = informationService.getItem(goods);
+//            System.out.println("oldNum-----" + oldNum);
+//
+//            if(oldNum > newNum * applyNumber){
+//                informationService.subtract(goods);
+//                results.add(CommonResult.error(CommonResultEm.ERROR,model + " " + size + "库存不足"));
+//            }
+//        }
+//        if(0 != results.size() || null != results ){
+//            return CommonResult.error(CommonResultEm.ERROR,"有库存不足，料单申请失败");
+//        }
+        List<Goods> goodsList = new ArrayList<>();
         for(String tempMaterialList:materialListArr){
 //            applyNumber * 里面的数  然后进行封装Goods  然后进行subtract
 //            成功则修改审核状态为待审核，插入料单申请表
+            System.out.println("tempMaterialList----------" + tempMaterialList);
+
             String[] temp = tempMaterialList.trim().split(" ");
             String name = temp[1];
             String size = temp[2];
@@ -128,12 +136,21 @@ public class MaterialListApplyController {
             goods.setGoodsModel(model)
                     .setGoodsName(name)
                     .setGoodsSize(size)
-                    .setGoodsNumbers(num*applyNumber);
+                    .setGoodsNumbers(num*applyNumber)
+                    .setBuyUserName(materialListOrder.getApplyUserName());
 //                    .setGoodsAddress(address);
-
+            goodsList.add(goods);
+            System.out.println("list<Goods>------" + goodsList);
             CommonResult tempResult1 = informationService.subtract(goods);
+            System.out.println("tempResult1-------" + tempResult1);
             // 一旦有一个不足就全不给申请
             if(!tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
+                //回加
+                System.out.println("list<Goods>------" + goodsList);
+                goodsList.remove(goodsList.size()-1);
+                for(Goods goods1:goodsList){
+                    informationService.add(goods1);
+                }
                 return tempResult1;
             }
         }
@@ -193,7 +210,8 @@ public class MaterialListApplyController {
                     goods.setGoodsModel(model)
                             .setGoodsName(name)
                             .setGoodsSize(size)
-                            .setGoodsNumbers(num*applyNumber);
+                            .setGoodsNumbers(num*applyNumber)
+                            .setBuyUserName(materialListOrder.getApplyUserName());
 //                    .setGoodsAddress(address);
                     CommonResult tempResult1 = informationService.add(goods);
                     if(!tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
@@ -254,7 +272,8 @@ public class MaterialListApplyController {
                     goods.setGoodsModel(model)
                             .setGoodsName(name)
                             .setGoodsSize(size)
-                            .setGoodsNumbers(num*applyNumber);
+                            .setGoodsNumbers(num*applyNumber)
+                            .setBuyUserName(materialListOrder.getApplyUserName());
 //                    .setGoodsAddress(address);
                     CommonResult tempResult2 = informationService.add(goods);
                     if(!tempResult2.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
@@ -399,6 +418,7 @@ public class MaterialListApplyController {
             return CommonResult.error(CommonResultEm.ERROR,"记录为空,无需导出报表");
         }
         List<MaterialListOrder> list = JSONArray.parseArray(JSONArray.toJSONString(obj)).toJavaList(MaterialListOrder.class);
+        System.out.println("generateMaterialListOrderExcel  list-----" + list);
 //        GenerateMaterialListOrderExcel generateMaterialListOrderExcel = new GenerateMaterialListOrderExcel(list,outUrl,fileName);
 //        return materialListService.generateMaterialListOrderExcel(generateMaterialListOrderExcel);
         ListToExcel.materialListOrderToExcel(resource,fileName,list);

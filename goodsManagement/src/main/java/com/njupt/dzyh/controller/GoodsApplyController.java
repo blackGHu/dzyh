@@ -132,7 +132,9 @@ public class GoodsApplyController {
                         .setGoodsModel(goodsApply.getRepertoryModel())
                         .setGoodsSize(goodsApply.getRepertorySize())
                         .setGoodsName(goodsApply.getRepertoryName())
-                        .setGoodsAddress(goodsApply.getRepertoryAddress());
+                        .setGoodsAddress(goodsApply.getRepertoryAddress())
+                        .setPurposeName(goodsApply.getPurposeName())
+                        .setCategoryName(goodsApply.getCategoryName());
                 CommonResult tempResult2 = informationService.add(goods);
                 if(tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
                     result.setResultCode(tempResult2.getResultCode());
@@ -239,9 +241,12 @@ public class GoodsApplyController {
                     .setGoodsAddress(goodsApply.getRepertoryAddress())
                     .setGoodsSize(goodsApply.getRepertorySize())
                     .setGoodsNumbers(goodsApply.getRepertoryNumbers())
-                    .setGoodsModel(goodsApply.getRepertoryModel());
+                    .setGoodsModel(goodsApply.getRepertoryModel())
+                    .setPurposeName(goodsApply.getPurposeName())
+                    .setCategoryName(goodsApply.getCategoryName());
 
-            // 按照规格和型号去查询记录表
+
+        // 按照规格和型号去查询记录表
             // 申请的时候先扣除余量
             CommonResult tempResult1 = informationService.subtract(goods);
             if(tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
@@ -302,7 +307,10 @@ public class GoodsApplyController {
                         .setGoodsSize(goodsApply.getRepertorySize())
                         .setGoodsNumbers(goodsApply.getRepertoryNumbers())
                         .setGoodsModel(goodsApply.getRepertoryModel())
-                        .setGoodsAddress(goodsApply.getRepertoryAddress());
+                        .setGoodsAddress(goodsApply.getRepertoryAddress())
+                        .setPurposeName(goodsApply.getPurposeName())
+                        .setCategoryName(goodsApply.getCategoryName());
+
                 return informationService.add(goods);
             }
         }else{
@@ -361,7 +369,10 @@ public class GoodsApplyController {
                             .setGoodsSize(goodsApply.getRepertorySize())
                             .setGoodsNumbers(goodsApply.getRepertoryNumbers())
                             .setGoodsModel(goodsApply.getRepertoryModel())
-                            .setGoodsAddress(goodsApply.getRepertoryAddress());
+                            .setGoodsAddress(goodsApply.getRepertoryAddress())
+                            .setPurposeName(goodsApply.getPurposeName())
+                            .setCategoryName(goodsApply.getCategoryName());
+
                     return informationService.add(goods);
                 }
             }
@@ -405,7 +416,10 @@ public class GoodsApplyController {
                 .setGoodsAddress(goodsApply.getRepertoryAddress())
                 .setGoodsSize(goodsApply.getRepertorySize())
                 .setGoodsNumbers(goodsApply.getRepertoryNumbers())
-                .setGoodsModel(goodsApply.getRepertoryModel());
+                .setGoodsModel(goodsApply.getRepertoryModel())
+                .setPurposeName(goodsApply.getPurposeName())
+                .setCategoryName(goodsApply.getCategoryName());
+
 
         // 按照规格和型号去查询记录表
         // 申请的时候先扣除余量

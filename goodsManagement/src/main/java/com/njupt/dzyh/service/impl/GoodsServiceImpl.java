@@ -304,7 +304,11 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
                             .setGoodsSize(goods.getGoodsSize())
                             .setGoodsNumbers(nowNum-oldNum)
                             .setGoodsModel(goods.getGoodsModel())
-                            .setGoodsAddress(goods.getGoodsAddress());
+                            .setGoodsAddress(goods.getGoodsAddress())
+                            .setPurposeName(goods.getPurposeName())
+                            .setRoleName(goods.getRoleName())
+                            .setBuyUserName(goods.getBuyUserName())
+                            .setCategoryName(goods.getCategoryName());
 
                     CommonResult tempResult1 = informationService.add(tempGoods);
                     if(!tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
@@ -317,7 +321,11 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao,Goods> implements Goo
                             .setGoodsSize(goods.getGoodsSize())
                             .setGoodsNumbers(oldNum-nowNum)
                             .setGoodsModel(goods.getGoodsModel())
-                            .setGoodsAddress(goods.getGoodsAddress());
+                            .setGoodsAddress(goods.getGoodsAddress())
+                            .setPurposeName(goods.getPurposeName())
+                            .setRoleName(goods.getRoleName())
+                            .setBuyUserName(goods.getBuyUserName())
+                            .setCategoryName(goods.getCategoryName());
                     CommonResult tempResult1 = informationService.subtract(tempGoods);
                     if(!tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
                         return tempResult1;
