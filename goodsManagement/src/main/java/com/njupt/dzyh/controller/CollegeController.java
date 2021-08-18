@@ -9,6 +9,9 @@ import com.njupt.dzyh.service.CollegeService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
 import org.apache.ibatis.annotations.Param;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,6 +40,8 @@ public class CollegeController {
 
 
     @RequestMapping("/selectAllCollege")
+    //@RequiresPermissions("selectAllCollege")
+    @RequiresRoles(value = {"管理员","超级管理员","游客","教师","学生"}, logical = Logical.OR)
     public CommonResult selectAllCollege(){
         return collegeService.selectAll();
     }
@@ -50,6 +55,7 @@ public class CollegeController {
      * @return
      */
     @RequestMapping("/insertBatchByFile")
+    @RequiresPermissions("insertBatchByFile")
     public CommonResult insertBatchByFile(@RequestParam("file") MultipartFile file){
         CommonResult result = new CommonResult();
         try {
@@ -106,6 +112,7 @@ public class CollegeController {
      * @return
      */
     @RequestMapping("/insertBatchByUrl")
+    @RequiresPermissions("insertBatchByUrl")
     public CommonResult insertBatchByUrl(@Param("url") String url){
         CommonResult result = new CommonResult();
         try {

@@ -7,6 +7,7 @@ import com.njupt.dzyh.otherFunctions.DownLoad;
 import com.njupt.dzyh.service.impl.UserInfoServiceImpl;
 import com.njupt.dzyh.service.impl.UserRoleServiceImpl;
 import com.njupt.dzyh.utils.CommonResult;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @RestController
+@RequiresRoles("超级管理员")
 @RequestMapping("dzyh/super")
 public class SuperManagerController {
     Logger log = LoggerFactory.getLogger(SuperManagerController.class);

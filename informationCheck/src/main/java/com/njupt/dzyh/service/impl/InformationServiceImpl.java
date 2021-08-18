@@ -218,6 +218,8 @@ public class InformationServiceImpl implements InformationService {
         QueryWrapper<Information> queryWrapper = new QueryWrapper<>();
 
 
+        System.out.println(con);
+
         System.out.println("分页查询 begin");
         if(current<=0){
             current = 1;

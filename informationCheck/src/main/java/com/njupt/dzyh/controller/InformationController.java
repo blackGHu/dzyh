@@ -13,6 +13,9 @@ import com.njupt.dzyh.otherFunctions.ListToExcelInfo;
 import com.njupt.dzyh.service.InformationService;
 import com.njupt.dzyh.service.UnderStockService;
 import com.njupt.dzyh.utils.CommonResult;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -79,6 +82,8 @@ public class InformationController {
      * 按条件查询库存信息
      * @return
      */
+    //@RequiresPermissions("selectByCondition")
+
     @RequestMapping("/selectByCondition/{current}/{size}")
     public CommonResult selectByCondition(@PathVariable("current") int current,@PathVariable("size") int pageSize,@RequestBody Information con){
 
@@ -101,6 +106,8 @@ public class InformationController {
      * @return
      */
     @RequestMapping("/getUnderStockByCondition/{current}/{size}")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
+    //@RequiresPermissions("getUnderStockByCondition")
     public CommonResult getUnderStockByCondition(@RequestBody UnderStock underStock,@PathVariable("current") int current,@PathVariable("size") int pageSize) {
         SelectResult selectResult = underStockService.getByCondition(underStock,current,pageSize);
         List<UnderStock> list = (List<UnderStock>) selectResult.getList();
@@ -115,6 +122,8 @@ public class InformationController {
      * @return
      */
     @RequestMapping("/readStatus")
+    //@RequiresPermissions("readStatus")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult readStatus(@RequestBody UnderStock underStock) {
         if(underStock.getUsId()==0) return CommonResult.error(CommonResultEm.ERROR,"记录Id为空");
         int rec = underStockService.setStatus(underStock);
@@ -129,6 +138,8 @@ public class InformationController {
      * @return
      */
     @RequestMapping("/readAllStatus")
+    //@RequiresPermissions("readAllStatus")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult readAllStatus() {
         System.out.println(resource);
         int rec = underStockService.setAllStatus();
@@ -143,6 +154,8 @@ public class InformationController {
      * @return
      */
     @RequestMapping("/underStockFile")
+    //@RequiresPermissions("underStockFile")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public void underStockFile(@RequestBody UnderStock underStock, HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<UnderStock> list = underStockService.getByCondition(underStock);
         if(list!=null){
@@ -153,6 +166,8 @@ public class InformationController {
     }
 
     @RequestMapping("/deleteUnderStock")
+    //@RequiresPermissions("deleteUnderStock")
+    @RequiresRoles(value = {"超级管理员"}, logical = Logical.OR)
     public CommonResult deleteUnderStock(@RequestBody UnderStock underStock){
         int rec = underStockService.delete(underStock);
         if(rec == 1){
@@ -165,22 +180,30 @@ public class InformationController {
     }
 
     @RequestMapping("/selectAllByCondition/{current}/{size}")
+    //@RequiresPermissions("selectAllByCondition")
+    @RequiresRoles(value = {"学生","教师","管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult selectAllByCondition(@RequestBody Information information,@PathVariable("current") int current,@PathVariable("size") int pageSize){
         return informationService.selectAllByCondition(information,current,pageSize);
     }
 
     @RequestMapping("/updateInformation")
+    //@RequiresPermissions("updateInformation")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult updateInformation(@RequestBody Information information){
         //根据id去查
         return informationService.updateInformation(information);
     }
 
     @RequestMapping("/deleteInformationById")
+    //@RequiresPermissions("deleteInformation")
+    @RequiresRoles(value = {"超级管理员"}, logical = Logical.OR)
     public CommonResult deleteInformation(@RequestBody Information information){
         return informationService.deleteInformationById(information);
     }
 
     @RequestMapping("/informationFile")
+    //@RequiresPermissions("informationFile")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public void informationFile(@RequestBody Information information,HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Information> list = informationService.selectAllByCondition(information);
         if(list!=null){

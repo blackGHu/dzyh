@@ -17,6 +17,9 @@ import com.njupt.dzyh.utils.CommonUtil;
 import com.njupt.dzyh.utils.ListToExcel;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +68,8 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/insertMaterialList")
+    //@RequiresPermissions("insertMaterialList")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult insertMaterialList(@RequestBody MaterialList materialList){
 
         return materialListService.insertMaterialList(materialList);
@@ -89,6 +94,8 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/materialListApply")
+    //@RequiresPermissions("materialListApply")
+    @RequiresRoles(value = {"教师","学生"}, logical = Logical.OR)
     public CommonResult materialListApply(@RequestBody MaterialListOrder materialListOrder){
 //        MaterialList materialList= (MaterialList) materialListService
 //                .selectBymaterialListId(materialListOrder.getMaterialListId()).getObj();
@@ -127,18 +134,21 @@ public class MaterialListApplyController {
             System.out.println("tempMaterialList----------" + tempMaterialList);
 
             String[] temp = tempMaterialList.trim().split(" ");
-            String name = temp[1];
+            String name = temp[3];
             String size = temp[2];
-            String model = temp[3];
+            String model = temp[1];
 //            String address = temp[4];
-            int num = Integer.parseInt(temp[4].substring(0,1));
+            //int num = Integer.parseInt(temp[4].substring(0,1));?？？？思考思考，这么写能没有问题？就每次只能借个位数的数量？？
+            int num = Integer.parseInt(temp[4]);
             Goods goods = new Goods();
             goods.setGoodsModel(model)
                     .setGoodsName(name)
                     .setGoodsSize(size)
                     .setGoodsNumbers(num*applyNumber)
-                    .setBuyUserName(materialListOrder.getApplyUserName());
+                    .setBuyUserName(materialListOrder.getApplyUserName()+"(料单)");
 //                    .setGoodsAddress(address);
+            System.out.println(goods);
+            System.out.println(materialListOrder.getApplyUserName());
             goodsList.add(goods);
             System.out.println("list<Goods>------" + goodsList);
             CommonResult tempResult1 = informationService.subtract(goods);
@@ -166,8 +176,10 @@ public class MaterialListApplyController {
      * 料单申请审批
      */
     @RequestMapping("/doMaterialListOrderApprove")
+    //@RequiresPermissions("doMaterialListOrderApprove")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult doMaterialListOrderApprove(@RequestParam("materialListOrderId") int materialListOrderId ,
-                                            @RequestParam(value = "goodsApprovalStatus",required = false) Integer goodsApprovalStatus){
+                                            @RequestParam(value = "goodsApprovalStatue",required = false) Integer goodsApprovalStatus){
 
         CommonResult commonResult = materialListService.selectBymaterialListOrderId(materialListOrderId);
         MaterialListOrder materialListOrder = JSON.parseObject(JSONObject.toJSONString(commonResult.getObj()),MaterialListOrder.class);
@@ -186,16 +198,22 @@ public class MaterialListApplyController {
          * 借用需要归还，有归还日期；领用和报废不需要归还，无归还日期。
          * 借用、领用和报废都需要将库存内的指定物品减去对应数量，归还需加上对应数量。
          */
+        //System.out.println(result.getResultCode());
+        //System.out.println(CommonResultEm.SUCCESS.getEcode());
         if(result.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())) {
+
+            //System.out.println(goodsApprovalStatus);
             if (goodsApprovalStatus == 2) {
                 /** 如果该料单被拒绝 则已扣的余量需要回加
                     1、
                  */
+
 //                MaterialList materialList = (MaterialList) materialListService
 //                        .selectBymaterialListId(materialListOrder.getMaterialListId()).getObj();
                 String orderDescribes = materialListOrder.getOrderDescribe(); // 获取该料单中申请的物品对象str  以“；”为分割
                 String[] materialListArr = orderDescribes.trim().split(";");
                 int applyNumber = materialListOrder.getApplyNumber();
+                //System.out.println("guo");
                 for(String tempMaterialList:materialListArr){
 //            applyNumber * 里面的数  然后进行封装Goods  然后进行subtract
 //            成功则修改审核状态为待审核，插入料单申请表
@@ -205,13 +223,14 @@ public class MaterialListApplyController {
                     String model = temp[3];
 //            String address = temp[4];
 
-                    int num = Integer.parseInt(temp[4].substring(0,1));
+                    //int num = Integer.parseInt(temp[4].substring(0,1));
+                    int num = Integer.parseInt(temp[4]);
                     Goods goods = new Goods();
                     goods.setGoodsModel(model)
                             .setGoodsName(name)
                             .setGoodsSize(size)
-                            .setGoodsNumbers(num*applyNumber)
-                            .setBuyUserName(materialListOrder.getApplyUserName());
+                            .setGoodsNumbers(num*applyNumber);
+                    System.out.println(goods);
 //                    .setGoodsAddress(address);
                     CommonResult tempResult1 = informationService.add(goods);
                     if(!tempResult1.getResultCode().equals(CommonResultEm.SUCCESS.getEcode())){
@@ -235,6 +254,8 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/deletByMaterialListId")
+    //@RequiresPermissions("deletByMaterialListId")
+    @RequiresRoles(value = {"超级管理员"}, logical = Logical.OR)
     public CommonResult deletByMaterialListId(@Param("materialListId") int materialListId ){
         return materialListService.deletByMaterialListId(materialListId);
     }
@@ -247,6 +268,8 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/deletByMaterialListOrderId")
+    //@RequiresPermissions("deletByMaterialListOrderId")
+    @RequiresRoles(value = {"超级管理员"}, logical = Logical.OR)
     public CommonResult deletByMaterialListOrderId(@Param("materialListOrderId") int materialListOrderId){
         MaterialListOrder materialListOrder = JSONObject
                 .parseObject(JSONObject.toJSONString(materialListService
@@ -299,6 +322,8 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/updateMaterialList")
+    //@RequiresPermissions("updateMaterialList")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult updateMaterialList(@RequestBody MaterialList materialList){
         return materialListService.updateMaterialList(materialList);
     }
@@ -310,6 +335,7 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/updateMaterialListOrder")
+    //@RequiresPermissions("updateMaterialListOrder")
     public CommonResult updateMaterialListOrder(@RequestBody MaterialListOrder materialListOrder){
         return materialListService.updateMaterialListOrder(materialListOrder);
     }
@@ -322,6 +348,7 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/selectAllMaterialList")
+    //@RequiresPermissions("selectAllMaterialList")
     public CommonResult selectAllMaterialList(){
         return materialListService.selectAllMaterialList();
     }
@@ -333,6 +360,8 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/selectAllMaterialListByPage/{current}/{size}")
+    //@RequiresPermissions("selectAllMaterialListByPage")
+    @RequiresRoles(value = {"游客","教师","学生","管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult selectAllMaterialListByPage(@PathVariable("current") int current,
                                         @PathVariable("size") int size,
                                         @RequestBody(required = false) Map<String,Object> conditionsMap){
@@ -348,6 +377,8 @@ public class MaterialListApplyController {
      * @return
      */
     @RequestMapping("/selectAllMaterialListOrderByPage/{current}/{size}")
+    //@RequiresPermissions("selectAllMaterialListOrderByPage")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult selectAllMaterialListOrderByPage(@PathVariable("current") int current,
                                                     @PathVariable("size") int size,
                                                     @RequestBody(required = false) Map<String,Object> conditionsMap){
@@ -391,6 +422,8 @@ public class MaterialListApplyController {
 
     //     ---------导出报表--------------
     @RequestMapping("/generateMaterialListExcel")
+    //@RequiresPermissions("generateMaterialListExcel")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult generateMaterialListExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
                                                   @Param("fileName") String fileName, HttpServletRequest request,
                                                   HttpServletResponse response) throws IOException {
@@ -410,6 +443,8 @@ public class MaterialListApplyController {
 
     //     ---------导出报表--------------
     @RequestMapping("/generateMaterialListOrderExcel")
+    //@RequiresPermissions("generateMaterialListOrderExcel")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult generateMaterialListOrderExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
                                                        @Param("fileName") String fileName, HttpServletRequest request,
                                                        HttpServletResponse response) throws IOException{

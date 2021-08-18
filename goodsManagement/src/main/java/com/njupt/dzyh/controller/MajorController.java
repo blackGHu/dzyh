@@ -9,6 +9,9 @@ import com.njupt.dzyh.service.MajorService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
 import org.apache.ibatis.annotations.Param;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,6 +40,8 @@ public class MajorController {
 
 
     @RequestMapping("/selectAllMajor")
+    //@RequiresPermissions("selectAllMajor")
+    @RequiresRoles(value = {"管理员","超级管理员","游客","教师","学生"}, logical = Logical.OR)
     public CommonResult selectAllMajor(){
         return majorService.selectAll();
     }
@@ -50,6 +55,7 @@ public class MajorController {
      * @return
      */
     @RequestMapping("/insertBatchByFile")
+    @RequiresPermissions("insertMajorByFile")
     public CommonResult insertBatchByFile(@RequestParam("file") MultipartFile file){
         CommonResult result = new CommonResult();
         try {

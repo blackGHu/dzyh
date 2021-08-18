@@ -22,15 +22,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.apache.shiro:shiro-spring-boot-starter:1.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.shiro:shiro-spring:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-core:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-lang:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-cache:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-hash:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-core:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-cipher:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-config-core:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-config-ogdl:1.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-event:1.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.shiro:shiro-web:1.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.owasp.encoder:encoder:1.2.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.4.4" level="project" />
@@ -118,5 +109,14 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore-nio:4.4.14" level="project" />
     <orderEntry type="module" module-name="goodsManagement" />
     <orderEntry type="module" module-name="informationCheck" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-core:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-lang:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-cache:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-hash:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-core:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-cipher:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-config-core:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-config-ogdl:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-event:1.7.1" level="project" />
   </component>
 </module>

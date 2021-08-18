@@ -10,14 +10,6 @@
     <facet type="Spring" name="Spring">
       <configuration />
     </facet>
-    <facet type="Spring" name="Spring">
-      <configuration />
-    </facet>
-    <facet type="web" name="Web">
-      <configuration>
-        <webroots />
-      </configuration>
-    </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
@@ -112,5 +104,14 @@
     <orderEntry type="library" name="Maven: xml-apis:xml-apis:1.0.b2" level="project" />
     <orderEntry type="library" name="Maven: com.alibaba:fastjson:1.2.32" level="project" />
     <orderEntry type="module" module-name="informationCheck" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-core:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-lang:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-cache:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-hash:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-core:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-crypto-cipher:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-config-core:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-config-ogdl:1.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.shiro:shiro-event:1.7.1" level="project" />
   </component>
 </module>

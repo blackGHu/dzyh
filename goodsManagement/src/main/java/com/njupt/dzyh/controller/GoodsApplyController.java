@@ -17,6 +17,9 @@ import com.njupt.dzyh.utils.CommonUtil;
 import com.njupt.dzyh.utils.ListToExcel;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +74,8 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/selectAllByPage/{current}/{size}")
+    //@RequiresPermissions("selectAllGoodsApplyByPage")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult selectAllByPage(@PathVariable("current") int current,
                                         @PathVariable("size") int size,
                                         @RequestBody(required = false) Map<String,Object> conditionsMap){
@@ -87,6 +92,8 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/selectPersonalByPage/{current}/{size}")
+    //@RequiresPermissions("selectPersonalByPage")
+    @RequiresRoles(value = {"教师","学生"}, logical = Logical.OR)
     public CommonResult selectPersonalByPage(@PathVariable("current") int current,
                                         @PathVariable("size") int size,
                                         @RequestBody(required = false) Map<String,Object> conditionsMap) {
@@ -120,6 +127,8 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/deleteByGoodsApplyId")
+    //@RequiresPermissions("deleteByGoodsApplyId")
+    @RequiresRoles(value = {"超级管理员"}, logical = Logical.OR)
     public CommonResult deleteByGoodsApplyId(@Param("orderId") int orderId){
         GoodsApply goodsApply = JSONObject
                 .parseObject(JSONObject.toJSONString(goodsApplyService.selectById(orderId).getObj()),GoodsApply.class);
@@ -160,11 +169,13 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/update")
+    //@RequiresPermissions("updateGoodsApply")
     public CommonResult update(@RequestBody GoodsApply goodsApply){
         return goodsApplyService.update(goodsApply);
     }
 
     @RequestMapping("/updateBatch")
+    //@RequiresPermissions("updateGoodsApplyBatch")
     public CommonResult updateBatch(@RequestBody List<GoodsApply> goodsApplyList){
         return goodsApplyService.updateBatch(goodsApplyList);
     }
@@ -175,6 +186,7 @@ public class GoodsApplyController {
 
 //     ---------导出报表--------------
     @RequestMapping("/generateExcel")
+    //@RequiresPermissions("goodsApplyFile")
     public CommonResult generateExcel(@RequestBody(required = false) Map<String,Object> conditionsMap,
                                       @Param("fileName") String fileName,HttpServletRequest request,
                                       HttpServletResponse response) throws IOException {
@@ -193,6 +205,7 @@ public class GoodsApplyController {
 
 //    ----------模板下载------------------
     @RequestMapping("/downLoadGoodsApplyTemplate")
+    //@RequiresPermissions("downLoadApplyTemplate")
     public void downLoadTemplate(HttpServletRequest request,
                                  HttpServletResponse response) throws UnsupportedEncodingException {
         String fileName = "goodsApplyTemplate.xls";
@@ -210,6 +223,8 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/goodsApply")
+    //@RequiresPermissions("goodsApply")
+    @RequiresRoles(value = {"教师","学生"}, logical = Logical.OR)
     public CommonResult goodsApply(@RequestBody GoodsApply goodsApply){
         /**
          * 订单表是否需要？
@@ -243,7 +258,8 @@ public class GoodsApplyController {
                     .setGoodsNumbers(goodsApply.getRepertoryNumbers())
                     .setGoodsModel(goodsApply.getRepertoryModel())
                     .setPurposeName(goodsApply.getPurposeName())
-                    .setCategoryName(goodsApply.getCategoryName());
+                    .setCategoryName(goodsApply.getCategoryName())
+                    .setBuyUserName(goodsApply.getApplyUserName());
 
 
         // 按照规格和型号去查询记录表
@@ -272,6 +288,8 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/doNormalGoodsApplyApprove")
+    //@RequiresPermissions("doNormalGoodsApplyApprove")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult doNormalGoodsApplyApprove(@RequestParam(value = "orderId") int orderId,
                                   @RequestParam(value = "approvalUserName",required = false) String approvalUserName,
                                   @RequestParam(value = "goodsApprovalStatus") Integer goodsApprovalStatus,
@@ -329,6 +347,8 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/doSpecialGoodsApplyApprove")
+    //@RequiresPermissions("doSpecialGoodsApplyApprove")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult doSpecialGoodsApplyApprove(@RequestParam(value = "orderId") int orderId,
                                                    @RequestParam(value = "approvalUserName",required = false) String approvalUserName,
                                                    @RequestParam(value = "goodsApprovalStatus",required = false) Integer goodsApprovalStatus,
@@ -392,6 +412,8 @@ public class GoodsApplyController {
      * @return
      */
     @RequestMapping("/scrapApply")
+    //@RequiresPermissions("scrapApply")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult scrapApply(@RequestBody GoodsApply goodsApply){
 
         /**

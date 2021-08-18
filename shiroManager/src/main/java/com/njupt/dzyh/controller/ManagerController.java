@@ -14,6 +14,7 @@ import com.njupt.dzyh.service.impl.UserInfoServiceImpl;
 import com.njupt.dzyh.service.impl.UserRoleServiceImpl;
 import com.njupt.dzyh.service.impl.UserServiceImpl;
 import com.njupt.dzyh.utils.CommonResult;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-//@RequiresRoles("管理员")
+@RequiresRoles( value = {"管理员","超级管理员"}, logical = Logical.OR)
 @RequestMapping("dzyh/manager")
 
 public class ManagerController {

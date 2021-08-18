@@ -8,6 +8,9 @@ import com.njupt.dzyh.service.CategoryService;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.CommonUtil;
 import org.apache.ibatis.annotations.Param;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,17 +39,23 @@ public class CategoryController {
 
 
     @RequestMapping("/selectAllCategory")
+    //@RequiresPermissions("selectAllCategory")
+    @RequiresRoles(value = {"管理员","游客","教师","学生","超级管理员"} , logical = Logical.OR)
     public CommonResult selectAllCategory(){
         return categoryService.selectAll();
     }
 
 
     @RequestMapping("/insertCategory")
+    //@RequiresPermissions("insertCategory")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult insert(@RequestBody Category category){
         return categoryService.insert(category);
     }
 
     @RequestMapping("/deleteCategoryById")
+    //@RequiresPermissions("deleteCategoryById")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult deleteCategoryById(@Param("categoryId") Integer categoryId){
         return categoryService.deletById(categoryId);
     }
@@ -60,6 +69,7 @@ public class CategoryController {
      * @return
              */
     @RequestMapping("/insertBatchByFile")
+    @RequiresPermissions("insertBatchByFile")
     public CommonResult insertBatchByFile(@RequestParam("file") MultipartFile file){
         CommonResult result = new CommonResult();
         try {
@@ -116,6 +126,7 @@ public class CategoryController {
      * @return
      */
     @RequestMapping("/insertBatchByUrl")
+    @RequiresPermissions("insertBatchByUrl")
     public CommonResult insertBatchByUrl(@Param("url") String url){
         CommonResult result = new CommonResult();
         try {
@@ -169,6 +180,7 @@ public class CategoryController {
 
 
     @RequestMapping("/daochu1")
+    @RequiresPermissions("daochu1")
     public CommonResult daochu(@Param("outUrl") String outUrl,
                                @Param("fileName") String fileName) throws IOException, ParseException {
 
@@ -177,6 +189,7 @@ public class CategoryController {
 
     }
     @RequestMapping("/daochu2")
+    @RequiresPermissions("daochu2")
     public CommonResult daochu() throws IOException, ParseException {
 
         List<Category> list = JSONArray.parseArray(JSONArray.toJSONString(selectAllCategory().getObj())).toJavaList(Category.class);

@@ -1,7 +1,5 @@
 server:
-  port: 8082
-
-resource: C:\\Users\\Administrator\\Desktop\\file
+  port: 8089
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/db_dzyh?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC
@@ -9,6 +7,13 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
+
+
+dbNames: db_dzyh
+dbFilePath: C:\\Users\\Administrator\\Desktop\\file\\db\\
+hostIp: 127.0.0.1
+resource: C:\\Users\\Administrator\\Desktop\\file\\
+#路径最后的双斜杠一定不能丢
 
 
 mybatis-plus:

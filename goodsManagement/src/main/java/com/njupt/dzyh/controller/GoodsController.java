@@ -18,6 +18,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,6 +112,8 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/insert")
+    //@RequiresPermissions("insertGoods")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult insert(@RequestBody Goods goods){
 
         return goodsService.insert(goods);
@@ -120,6 +125,7 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/insertBatchByList")
+    @RequiresPermissions("insertGoodsByList")
     public CommonResult insertBatch(@RequestBody List<Goods> goodsList){
         System.out.println("goodsList---\t" + goodsList);
         for(Goods goods:goodsList){
@@ -202,6 +208,8 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/insertBatchByFile")
+    //@RequiresPermissions("insertGoodsByFile")
+    @RequiresRoles(value = {"管理员","超级管理员"}, logical = Logical.OR)
     public CommonResult insertBatch(@RequestParam("file") MultipartFile multfile){
         CommonResult result = new CommonResult();
         List<Goods> goodsList = new ArrayList<>();
@@ -587,6 +595,8 @@ public class GoodsController {
 
     //    ----------模板下载------------------
     @RequestMapping("/downLoadGoodsApplyTemplate")
+    //@RequiresPermissions("downLoadGoodsInsertTemplate")
+    @RequiresRoles(value = {"管理员","教师","学生","超级管理员"}, logical = Logical.OR)
     public void downLoadTemplate(HttpServletRequest request,
                                  HttpServletResponse response) throws IOException {
         String fileName = "goodsTemplate.xls";
