@@ -7,6 +7,7 @@
 package com.njupt.dzyh.exception;
 
 
+import com.njupt.dzyh.enums.CommonResultEm;
 import com.njupt.dzyh.utils.CommonResponse;
 import com.njupt.dzyh.utils.CommonResult;
 import com.njupt.dzyh.utils.MessageUtil;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 
@@ -57,6 +59,7 @@ public class GlobalExceptionHandler {
          */
 //        bindException.printStackTrace();
         LOGGER.error("handleBindException="+bindException.getMessage(), bindException);
+       // System.out.println(bindException);
 
         CommonResponse response = new CommonResponse();
         FieldError fieldError = bindException.getFieldError();
@@ -127,13 +130,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Throwable.class)
     public @ResponseBody CommonResponse
-    handleException(final Throwable throwable) throws Exception {
+    handleException(final Throwable throwable, HttpServletResponse resp) throws Exception {
         //按照规范：打印异常日志
 //        throwable.printStackTrace();
         LOGGER.error("handleException={}", throwable.getMessage());
 
+        //System.out.println(throwable.);
         CommonResponse response = new CommonResponse();
         CommonResult result = null;
+
+
+
         if (throwable instanceof SystemException) {
             result = ((BaseException) throwable).getResult();
         } else if (throwable instanceof BusinessException) {
@@ -169,6 +176,17 @@ public class GlobalExceptionHandler {
         response.setResult(result);
 
         LOGGER.error("handleException:{}",response);
+
+        String msg = throwable.toString();
+        if(msg.indexOf("org.apache.shiro.authz.UnauthenticatedException")>-1){
+            LOGGER.info("未登录");
+            result.setResultCode("600");
+            result.setResultMessage("请先登录");
+            result.setObj("请先登录");
+            response.setResult(result);
+            resp.setStatus(600);
+        }
+
 
         return response;
     }

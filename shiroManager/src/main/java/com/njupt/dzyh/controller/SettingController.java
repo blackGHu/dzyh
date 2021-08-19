@@ -7,6 +7,8 @@ import com.njupt.dzyh.service.impl.UserInfoServiceImpl;
 import com.njupt.dzyh.service.impl.UserServiceImpl;
 import com.njupt.dzyh.utils.CommonResult;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import java.util.Map;
 //用户个人的操作
 @RestController
 @RequestMapping("dzyh/set")
+@RequiresRoles( value = {"游客","教师","学生","管理员","超级管理员"}, logical = Logical.OR)
 public class SettingController {
     private Logger logger = LoggerFactory.getLogger(RegisterController.class);
 

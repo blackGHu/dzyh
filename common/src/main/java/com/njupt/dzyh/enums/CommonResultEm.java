@@ -12,6 +12,7 @@ public enum CommonResultEm {
     BIND_ERROR      ("111101","参数校验异常"),
     ALREADY_EXIST   ("111102","已存在"),
     NOT_EXIST       ("111103","不存在"),
+    NO_LOGIN        ("600","未登录"),
 
     // 用户登录enum：900xx
     // 管理员...：800xx
