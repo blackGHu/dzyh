@@ -80,6 +80,7 @@ public class RegisterController {
             returnUser = (User) currentUser.getPrincipal();
             Map<Integer,String> roleMap = returnUser.getRoleNames();
             //String encryptionKey= DigestUtils.sha256Hex(SINGNATURE_TOKEN+user.getUserId());
+            //System.out.println(roleMap.toString());
             return CommonResult.success(returnUser.getUserId()+"登录成功， 角色："+roleMap.get(returnUser.getCurrentRoleId()));
         }
         catch (UnknownAccountException uae){

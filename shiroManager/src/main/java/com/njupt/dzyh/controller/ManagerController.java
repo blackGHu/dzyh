@@ -110,6 +110,7 @@ public class ManagerController {
         userInfo.setUserName(updateUser.getUserName());
         userInfo.setUserPhone(updateUser.getUserPhone());
         int[] roleIds = updateUser.getRoleIds();
+
         if(roleIds.length>0)
         userInfo.setRoleId(roleIds[0]);
 
