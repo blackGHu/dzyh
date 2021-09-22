@@ -114,6 +114,8 @@ public class ManagerController {
         if(roleIds.length>0)
         userInfo.setRoleId(roleIds[0]);
 
+        System.out.println(userInfo);
+
         userRoleService.deleteByUserId(updateUser.getUserId());
 
         int recUser = userInfoService.upDateUser(userInfo);

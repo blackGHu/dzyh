@@ -63,7 +63,8 @@ public class UserInfoServiceImpl implements UserInfoService {
             UserInfo user = getUserById(userInfo.getUserId());
             user.setUserName(userInfo.getUserName());
             user.setUserPhone(userInfo.getUserPhone());
-            user.setRoleId(userInfo.getRoleId());
+            if(userInfo.getRoleId()!=0)
+                user.setRoleId(userInfo.getRoleId());
             int rec = userDao.updateById(user);
             if(rec==1) return 0;//成功
             else return -1;
